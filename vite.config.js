@@ -1,3 +1,5 @@
+import wasm from 'vite-plugin-wasm'
+import topLevelAwait from 'vite-plugin-top-level-await'
 import restart from 'vite-plugin-restart'
 
 export default {
@@ -16,6 +18,8 @@ export default {
     },
     plugins:
     [
+        wasm(),
+        topLevelAwait(),
         restart({ restart: [ '../static/**', ] }) // Restart server on static file change
     ],
 }
