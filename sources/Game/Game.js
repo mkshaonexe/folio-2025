@@ -2,6 +2,7 @@ import { Physics } from './Physics.js'
 import { PhysicsDebug } from './PhysicsDebug.js'
 import { Rendering } from './Rendering.js'
 import { Time } from './Time.js'
+import { Vehicle } from './Vehicle.js'
 import { View } from './View.js'
 import { Viewport } from './Viewport.js'
 import { World } from './World.js'
@@ -23,9 +24,10 @@ export class Game
         this.viewport = new Viewport(this.domElement)
         this.physics = new Physics()
         this.world = new World()
+        this.physicsDebug = new PhysicsDebug()
         this.view = new View()
         this.rendering = new Rendering()
-        this.physicsDebug = new PhysicsDebug()
+        this.vehicle = new Vehicle()
     }
 }
 
