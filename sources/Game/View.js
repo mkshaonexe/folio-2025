@@ -11,7 +11,7 @@ export class View
         this.game = new Game()
 
         this.camera = new THREE.PerspectiveCamera(25, this.game.viewport.ratio, 0.1, 1000)
-        this.camera.position.set(10, 4, 6)
+        this.camera.position.set(16, 2, 6)
         this.game.world.scene.add(this.camera)
 
         this.cameraControls = new CameraControls(this.camera, this.game.domElement)

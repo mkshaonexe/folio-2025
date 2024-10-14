@@ -10,7 +10,7 @@ export class World
         this.game = new Game()
 
         this.scene = new THREE.Scene()
-        this.scene.fogNode = rangeFog(color('#1b191f'), 50, 100)
+        this.scene.fogNode = rangeFog(color(0x1b191f), 50, 100)
 
         this.setGrid()
 
@@ -33,13 +33,13 @@ export class World
     setGrid()
     {
         const lines = [
-            // new MeshGridMaterialLine('#444444', 0.1, 0.04),
-            new MeshGridMaterialLine('#744134', 1, 0.02),
-            new MeshGridMaterialLine('#ffffff', 10, 0.002),
+            // new MeshGridMaterialLine(0x444444, 0.1, 0.04),
+            new MeshGridMaterialLine(0x705df2, 1, 0.01),
+            new MeshGridMaterialLine(0xffffff, 10, 0.002),
         ]
 
         const uvGridMaterial = new MeshGridMaterial({
-            color: '#1f1919',
+            color: 0x1b191f,
             scale: 0.001,
             antialiased: true,
             reference: 'uv', // uv | world
