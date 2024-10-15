@@ -11,7 +11,7 @@ export class View
         this.game = new Game()
 
         this.camera = new THREE.PerspectiveCamera(25, this.game.viewport.ratio, 0.1, 1000)
-        this.camera.position.set(16, 2, 6)
+        this.camera.position.set(16, 5, 6)
         this.game.world.scene.add(this.camera)
 
         this.cameraControls = new CameraControls(this.camera, this.game.domElement)
@@ -38,6 +38,8 @@ export class View
 
     update()
     {
+        const vehicle = this.game.vehicle
+        this.cameraControls.setTarget(vehicle.position.x, vehicle.position.y, vehicle.position.z)
         this.cameraControls.update(this.game.time.delta)
     }
 }
