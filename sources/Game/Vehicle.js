@@ -223,7 +223,9 @@ export class Vehicle
             const wheel = this.wheels.items[i]
 
             wheel.visual.rotation.x += this.wheels.engineForce * 1.5 * this.game.time.delta
-            wheel.visual.rotation.y = this.wheels.visualSteering
+
+            if(i === 0 || i === 2)
+                wheel.visual.rotation.y = this.wheels.visualSteering
 
             wheel.visual.position.y = wheel.basePosition.y - this.controller.wheelSuspensionLength(i)
 
