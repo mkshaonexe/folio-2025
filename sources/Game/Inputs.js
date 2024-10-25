@@ -11,9 +11,7 @@ export class Inputs
         this.keys = {}
 
         for(const _map of this.map)
-        {
             this.keys[_map.name] = false
-        }
 
         addEventListener('keydown', (_event) =>
         {

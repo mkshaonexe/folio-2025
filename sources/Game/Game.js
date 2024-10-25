@@ -28,10 +28,18 @@ export class Game
             { name: 'right', keys: [ 'ArrowRight', 'KeyD' ] },
             { name: 'down', keys: [ 'ArrowDown', 'KeyS' ] },
             { name: 'left', keys: [ 'ArrowLeft', 'KeyA' ] },
-            { name: 'jump', keys: [ 'Space' ] },
             { name: 'boost', keys: [ 'ShiftLeft', 'ShiftRight' ] },
             { name: 'brake', keys: [ 'KeyB' ] },
             { name: 'reset', keys: [ 'KeyR' ] },
+            { name: 'hydrolics', keys: [ 'Numpad5', 'Space' ] },
+            { name: 'hydrolicsFront', keys: [ 'Numpad8' ] },
+            { name: 'hydrolicsBack', keys: [ 'Numpad2' ] },
+            { name: 'hydrolicsRight', keys: [ 'Numpad6' ] },
+            { name: 'hydrolicsLeft', keys: [ 'Numpad4' ] },
+            { name: 'hydrolicsFrontLeft', keys: [ 'Numpad7' ] },
+            { name: 'hydrolicsFrontRight', keys: [ 'Numpad9' ] },
+            { name: 'hydrolicsBackRight', keys: [ 'Numpad3' ] },
+            { name: 'hydrolicsBackLeft', keys: [ 'Numpad1' ] },
         ])
         this.time = new Time()
         this.viewport = new Viewport(this.domElement)

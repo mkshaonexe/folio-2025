@@ -31,11 +31,11 @@ export class Vehicle
         }
 
         this.setWheels()
-        this.setJump()
         this.setStop()
         this.setFlip()
         this.setUnstuck()
         this.setReset()
+        this.setHydrolics()
 
         this.game.time.events.on('tick', () =>
         {
@@ -104,7 +104,7 @@ export class Vehicle
 
         // Settings
         this.wheels.settings = {
-            offset: { x: 0.8, y: -0.4, z: 0.75 }, // No default
+            offset: { x: 0.8, y: -0.4, z: 0.85 }, // No default
             radius: 0.5,                          // No default
             directionCs: { x: 0, y: -1, z: 0 },   // Suspension direction
             axleCs: { x: 0, y: 0, z: 1 },         // Rotation axis
@@ -180,47 +180,6 @@ export class Vehicle
             panel.addBinding(this.wheels, 'brakePerpetualStrength', { min: 0, max: 0.2, step: 0.01 })
             panel.addBinding(this.wheels, 'engineForceMax', { min: 0, max: 10, step: 0.01 })
             panel.addBinding(this.wheels, 'engineBoostMultiplier', { min: 0, max: 5, step: 0.01 })
-        }
-    }
-
-    setJump()
-    {
-        this.jump = {}
-        this.jump.force = 8
-        this.jump.turningTorque = 2
-
-        this.jump.activate = () =>
-        {
-            if(this.wheels.inContact > 0)
-            {
-                const impulse = this.upward.clone().multiplyScalar(this.jump.force * this.chassis.physical.body.mass())
-                this.chassis.physical.body.applyImpulse(impulse)
-
-                let torqueY = 0
-                if(this.game.inputs.keys.left)
-                    torqueY += this.jump.turningTorque
-                else if(this.game.inputs.keys.right)
-                    torqueY -= this.jump.turningTorque
-                this.chassis.physical.body.applyTorqueImpulse({ x: 0, y: torqueY, z: 0 })
-            }
-        }
-
-        this.game.inputs.events.on('jump', (_down) =>
-        {
-            if(_down)
-                this.jump.activate()
-        })
-        
-        // Debug
-        if(this.game.debug.active)
-        {
-            const panel = this.debugPanel.addFolder({
-                title: '⬆️ Jump',
-                expanded: true,
-            })
-
-            panel.addBinding(this.jump, 'force', { min: 0, max: 20, step: 0.01 })
-            panel.addBinding(this.jump, 'turningTorque', { min: 0, max: 10, step: 0.01 })
         }
     }
 
@@ -355,6 +314,36 @@ export class Vehicle
         })
     }
 
+    setHydrolics()
+    {
+        this.hydrolics = {}
+
+        this.hydrolics.update = () =>
+        {
+            const activeHydrolics = [
+                this.game.inputs.keys.hydrolics || this.game.inputs.keys.hydrolicsFront || this.game.inputs.keys.hydrolicsRight || this.game.inputs.keys.hydrolicsFrontRight, // front right
+                this.game.inputs.keys.hydrolics || this.game.inputs.keys.hydrolicsFront || this.game.inputs.keys.hydrolicsLeft || this.game.inputs.keys.hydrolicsFrontLeft, // front left
+                this.game.inputs.keys.hydrolics || this.game.inputs.keys.hydrolicsBack || this.game.inputs.keys.hydrolicsRight || this.game.inputs.keys.hydrolicsBackRight, // back right
+                this.game.inputs.keys.hydrolics || this.game.inputs.keys.hydrolicsBack || this.game.inputs.keys.hydrolicsLeft || this.game.inputs.keys.hydrolicsBackLeft, // back left
+            ]
+
+            const restLength = this.game.inputs.keys.hydrolics ? 1 : 0.5
+            
+            for(let i = 0; i < 4; i++)
+                this.controller.setWheelSuspensionRestLength(i, activeHydrolics[i] ? restLength : this.wheels.settings.suspensionRestLength)
+        }
+
+        this.game.inputs.events.on('hydrolics', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsFront', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsBack', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsRight', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsLeft', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsFrontLeft', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsFrontRight', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsBackRight', this.hydrolics.update)
+        this.game.inputs.events.on('hydrolicsBackLeft', this.hydrolics.update)
+    }
+
     updatePrePhysics()
     {
         // Wheels
@@ -415,7 +404,8 @@ export class Vehicle
             if(i === 0 || i === 1)
                 wheel.visual.rotation.y = this.wheels.visualSteering
 
-            wheel.visual.position.y = wheel.basePosition.y - this.controller.wheelSuspensionLength(i)
+            const suspensionY = wheel.basePosition.y - this.controller.wheelSuspensionLength(i)
+            wheel.visual.position.y += (suspensionY - wheel.visual.position.y) * 25 * this.game.time.deltaScaled
 
             if(this.controller.wheelIsInContact(i))
                 this.wheels.inContact++
