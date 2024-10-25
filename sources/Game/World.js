@@ -23,6 +23,13 @@ export class World
         {
             this.update()
         }, 4)
+
+        // this.game.physics.addEntity(
+        //     {
+        //         type: 'fixed',
+        //         colliders: [ { shape: 'cuboid', parameters: [ 1, 1, 1 ] } ]
+        //     }
+        // )
     }
 
     setGround()

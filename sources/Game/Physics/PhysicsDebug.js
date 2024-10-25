@@ -6,29 +6,41 @@ export class PhysicsDebug
     constructor()
     {
         this.game = new Game()
+        this.active = false
 
-        // this.geometry = new THREE.BoxGeometry(1, 1, 1)
         this.geometry = new THREE.BufferGeometry()
-        const positions = new Float32Array([
-            0, 0, 0, 0, 2, 0,
-            2, 0, 0, 2, 2, 0,
-        ])
-        this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-        this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(positions, 4))
-
+        this.geometry.setAttribute('position', new THREE.Float32BufferAttribute([], 3))
+        this.geometry.setAttribute('color', new THREE.Float32BufferAttribute([], 4))
 
         this.material = new THREE.LineBasicMaterial({ vertexColors: true })
+
         this.mesh = new THREE.LineSegments(this.geometry, this.material)
-        this.game.world.scene.add(this.mesh)
+
+        if(this.active)
+            this.game.world.scene.add(this.mesh)
 
         this.game.time.events.on('tick', () =>
         {
             this.update()
         }, 3)
+
+        if(this.game.debug.active)
+        {
+            this.game.physics.debugPanel.addBinding(this, 'active', { label: 'debug' }).on('change', () =>
+            {
+                if(this.active)
+                    this.game.world.scene.add(this.mesh)
+                else
+                    this.game.world.scene.remove(this.mesh)
+            })
+        }
     }
     
     update()
     {
+        if(!this.active)
+            return
+
         const { vertices, colors } = this.game.physics.world.debugRender()
 
         this.geometry.attributes.position.array = vertices
