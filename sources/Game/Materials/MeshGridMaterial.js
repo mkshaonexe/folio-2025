@@ -38,14 +38,16 @@ const toTriplanarUv = Fn(([ position, mask ]) =>
     return uv
 })
 
-const toGrid = Fn(([uv, scale, thickness, offset]) =>
+const toGrid = Fn(([uv, scale, thickness, offset, cross]) =>
 {
     const referenceUv = uv.div(scale).add(offset)
-    const grid = referenceUv.sub(0.5).fract().sub(0.5).abs().mul(2).step(thickness)
+	const crossGrid = referenceUv.fract().sub(0.5).abs().step(cross.oneMinus().mul(0.5))
+	const crossMask = mix(crossGrid.x, 1, crossGrid.y).oneMinus()
+    const grid = referenceUv.sub(0.5).fract().sub(0.5).abs().mul(2).step(thickness).mul(crossMask)
 	return mix(grid.x, 1, grid.y)
 })
 
-const toAntialiasedGrid = Fn(([uv, scale, thickness, offset, derivateMask]) =>
+const toAntialiasedGrid = Fn(([uv, scale, thickness, offset, cross, derivateMask]) =>
 {
     // Based on https://bgolus.medium.com/the-best-darn-grid-shader-yet-727f9278b9d8
     const lineWidth = thickness
@@ -53,20 +55,25 @@ const toAntialiasedGrid = Fn(([uv, scale, thickness, offset, derivateMask]) =>
     const uvDeriv = referenceUv.fwidth().mul(derivateMask)
     const drawWidth = clamp(lineWidth, uvDeriv, 1);
     const lineAA = uvDeriv.mul(1.5);
+
+	const crossGrid = referenceUv.fract().sub(0.5).abs().step(cross.oneMinus().mul(0.5))
+	const crossMask = mix(crossGrid.x, 1, crossGrid.y).oneMinus()
+
     const gridUV = referenceUv.fract().mul(2).sub(1).abs().oneMinus()
     let grid2 = smoothstep(drawWidth.add(lineAA), drawWidth.sub(lineAA), gridUV);
     grid2 = grid2.mul(clamp(lineWidth.div(drawWidth), 0, 1))
-    grid2 = mix(grid2, lineWidth, clamp(uvDeriv.mul(2).sub(1), 0, 1))
+    grid2 = mix(grid2, lineWidth, clamp(uvDeriv.mul(2).sub(1), 0, 1)).mul(crossMask)
     return mix(grid2.x, 1, grid2.y)
 })
 
 class MeshGridMaterialLine
 {
-	constructor(_color = 0xffffff, scale = 1, thickness = 0.05, offset = vec2(0))
+	constructor(_color = 0xffffff, scale = 1, thickness = 0.05, cross = 1, offset = vec2(0))
 	{
 		this.color = uniform(color(_color))
 		this.scale = uniform(scale)
 		this.thickness = uniform(thickness)
+		this.cross = uniform(cross)
 		this.offset = uniform(offset)
 	}
 }
@@ -132,8 +139,8 @@ class MeshGridMaterial extends NodeMaterial
 		for(const line of this.lines)
 		{
 			const grid = this.antialiased ? 
-				toAntialiasedGrid(uvReference, line.scale.mul(this.scaleNode), line.thickness, line.offset, maskDerivate) :
-				toGrid(uvReference, line.scale.mul(this.scaleNode), line.thickness, line.offset)
+				toAntialiasedGrid(uvReference, line.scale.mul(this.scaleNode), line.thickness, line.offset, line.cross, maskDerivate) :
+				toGrid(uvReference, line.scale.mul(this.scaleNode), line.thickness, line.offset, line.cross)
 			
 			gridColor = mix(
 				gridColor,
