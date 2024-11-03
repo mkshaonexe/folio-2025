@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { Game } from '../Game.js'
 import { texture } from 'three'
 import { vec2 } from 'three'
+import { vec4 } from 'three'
 import { Fn } from 'three'
 import { positionGeometry } from 'three'
 import { positionLocal } from 'three'
@@ -55,17 +56,15 @@ export class Bush
             const x = vec3(positionViewDirection.z, 0, positionViewDirection.x.negate()).normalize()
             const y = positionViewDirection.cross(x)
 
-            const cuustomTransformedNormalView = transformNormalToView(positionGeometry.normalize())
-            const customMatcapUv = vec2(x.dot(cuustomTransformedNormalView), y.dot(cuustomTransformedNormalView) ).mul(0.495).add(0.5)
+            const customTransformedNormalView = transformNormalToView(positionGeometry.normalize())
+            const customMatcapUv = vec2(x.dot(customTransformedNormalView), y.dot(customTransformedNormalView) ).mul(0.495).add(0.5)
 
             const matcapColor = texture(this.resources.matcapBushOnGreen, customMatcapUv)
             const leavesColor = texture(this.resources.bushLeaves)
 
             leavesColor.r.lessThan(0.5).discard()
 
-            
-
-            return matcapColor.rgb
+            return vec4(matcapColor.rgb, 1)
         })()
 
         const mesh = new THREE.Mesh(geometry, material)
