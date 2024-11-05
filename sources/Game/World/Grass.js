@@ -43,7 +43,7 @@ export class Grass
         this.game.time.events.on('tick', () =>
         {
             this.update()
-        })
+        }, 5)
     }
 
     setGeometry()
@@ -134,7 +134,7 @@ export class Grass
             // Wheel tracks
             const wheelTracksColor = texture(
                 this.game.vehicle.wheelTracks.renderTarget.texture,
-                vec2(worldPosition.x, worldPosition.z).sub(-10).div(20)
+                worldPosition.xz.sub(- this.game.vehicle.wheelTracks.halfSize).sub(this.playerPosition).div(this.game.vehicle.wheelTracks.size)
             )
 
             // Height

@@ -8,15 +8,19 @@ export class WheelTracks
     {
         this.game = new Game()
         this.resolution = 1024
-        this.size = 20
+        this.size = 30
+        this.halfSize = this.size / 2
         this.tracks = []
         
-        this.camera = new THREE.OrthographicCamera(-10, 10, 10, -10, 0.1, 10)
+        this.camera = new THREE.OrthographicCamera(- this.halfSize,  this.halfSize,  this.halfSize, - this.halfSize, 0.1, 10)
         this.camera.position.y = 5
         this.camera.rotation.x = - Math.PI * 0.5
         
         this.scene = new THREE.Scene()
         this.scene.add(this.camera)
+
+        this.group = new THREE.Group()
+        this.scene.add(this.group)
 
         this.renderTarget = new THREE.RenderTarget(
             this.resolution,
@@ -35,24 +39,28 @@ export class WheelTracks
         // )
         // this.scene.add(this.dummy)
 
-        // this.debugPlane = new THREE.Mesh(
-        //     new THREE.PlaneGeometry(5, 5),
-        //     new THREE.MeshBasicMaterial({ map: this.renderTarget.texture, transparent: true })
-        // )
-        // this.debugPlane.position.y = 5
-        // this.game.scene.add(this.debugPlane)
+        this.debugPlaneCurrent = new THREE.Mesh(
+            new THREE.PlaneGeometry(5, 5),
+            new THREE.MeshBasicMaterial({ map: this.renderTarget.texture, transparent: false })
+        )
+        this.debugPlaneCurrent.position.y = 5
+        this.debugPlaneCurrent.position.x = - 3
+        this.game.scene.add(this.debugPlaneCurrent)
     }
 
     createTrack()
     {
         const track = new WheelTrack()
         this.tracks.push(track)
-        this.scene.add(track.trail.mesh)
+        this.group.add(track.trail.mesh)
         return track
     }
 
-    update()
+    update(vehiclePosition)
     {
+        this.group.position.set(- vehiclePosition.x, - vehiclePosition.y, - vehiclePosition.z)
+
+        // Render
         const clearAlpha = this.game.rendering.renderer.getClearAlpha()
         
         this.game.rendering.renderer.setClearAlpha(0)

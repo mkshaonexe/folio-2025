@@ -7,7 +7,7 @@ export class Rendering
     {
         this.game = new Game()
 
-        this.renderer = new THREE.WebGPURenderer({ forceWebGL: false })
+        this.renderer = new THREE.WebGPURenderer({ forceWebGL: true })
         this.renderer.setSize(this.game.viewport.width, this.game.viewport.height)
         this.renderer.domElement.classList.add('experience')
         this.renderer.setClearColor(0x1b191f)
@@ -16,7 +16,7 @@ export class Rendering
         this.game.time.events.on('tick', () =>
         {
             this.render()
-        }, 5)
+        }, 6)
 
         this.game.viewport.events.on('change', () =>
         {

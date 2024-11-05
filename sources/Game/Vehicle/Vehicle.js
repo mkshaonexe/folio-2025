@@ -495,6 +495,6 @@ export class Vehicle
             this.game.view.speedLines.targetStrength = 0
 
         // Wheels tracks
-        this.wheelTracks.update()
+        this.wheelTracks.update(this.position)
     }
 }

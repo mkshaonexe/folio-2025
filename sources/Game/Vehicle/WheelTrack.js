@@ -8,7 +8,7 @@ export class WheelTrack
     {
         this.game = new Game()
 
-        this.size = 128
+        this.subdivisions = 128
         this.timeSpan = 1 / 30
         this.lastTime = 0
         
@@ -20,8 +20,8 @@ export class WheelTrack
     setDataTexture()
     {
         this.dataTexture = new THREE.DataTexture(
-            new Float32Array(this.size * 4),
-            this.size,
+            new Float32Array(this.subdivisions * 4),
+            this.subdivisions,
             1,
             THREE.RGBAFormat,
             THREE.FloatType
@@ -31,7 +31,7 @@ export class WheelTrack
     setTrail()
     {
         this.trail = {}
-        this.trail.geometry = new THREE.PlaneGeometry(1, 1, this.size, 1)
+        this.trail.geometry = new THREE.PlaneGeometry(1, 1, this.subdivisions, 1)
         this.trail.geometry.translate(0.5, 0, 0)
         // this.trail.geometry.rotateX(Math.PI * 0.5)
         
@@ -41,7 +41,7 @@ export class WheelTrack
         
         this.trail.material.positionNode = Fn(() =>
         {
-            const fragmentSize = float(1).div(this.size)
+            const fragmentSize = float(1).div(this.subdivisions)
 
             const ratio = uv().x.sub(fragmentSize.mul(0.5))
 
@@ -84,6 +84,7 @@ export class WheelTrack
         })()
         
         this.trail.mesh = new THREE.Mesh(this.trail.geometry, this.trail.material)
+        this.trail.mesh.frustumCulled = false
         this.game.scene.add(this.trail.mesh)
     }
 
@@ -106,7 +107,7 @@ export class WheelTrack
         if(lastTimeDelta > this.timeSpan)
         {
             // Move data one "pixel"
-            for(let i = this.size - 1; i >= 0; i--)
+            for(let i = this.subdivisions - 1; i >= 0; i--)
             {
                 const i4 = i * 4
                 data[i4    ] = data[i4 - 4]

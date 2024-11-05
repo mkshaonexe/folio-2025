@@ -15,3 +15,13 @@ npm run dev
 npm run build
 ```
 
+## Tick order
+
+| Order | Components |
+|---|---|
+| 1 | Vehicle(pre Physics) |
+| 2 | Physics |
+| 3 | View |
+| 4 | Vehicle(post Physics), PhysicsWireframe |
+| 5 | Grass |
+| 6 | Rendering |

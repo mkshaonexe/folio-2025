@@ -21,10 +21,6 @@ export class World
         // axesHelper.position.y = 2
         // this.game.scene.add(axesHelper)
 
-        this.game.time.events.on('tick', () =>
-        {
-            this.update()
-        }, 4)
     }
 
     setTestCube()
@@ -43,9 +39,5 @@ export class World
             },
             visualCube
         )
-    }
-
-    update()
-    {
     }
 }
