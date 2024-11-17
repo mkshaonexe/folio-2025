@@ -1,6 +1,6 @@
 import * as THREE from 'three'
-import { Game } from '../Game.js'
-import { Events } from '../Events.js'
+import { Game } from './Game.js'
+import { Events } from './Events.js'
 
 export class Vehicle
 {
@@ -14,10 +14,12 @@ export class Vehicle
 
         this.controller = this.game.physics.world.createVehicleController(this.chassis.physical.body)
 
-        this.sideward = new THREE.Vector3(1, 0, 0)
+        this.sideward = new THREE.Vector3(0, 0, 1)
         this.upward = new THREE.Vector3(0, 1, 0)
-        this.forward = new THREE.Vector3(0, 0, 1)
+        this.forward = new THREE.Vector3(1, 0, 0)
         this.position = new THREE.Vector3()
+        this.direction = this.forward.clone()
+        this.goingForward = false
         this.speed = 0
         this.absoluteSpeed = 0
         this.upsideDownRatio = 0
@@ -387,12 +389,26 @@ export class Vehicle
 
     updatePrePhysics()
     {
-        // Wheels
+        let reverseBrake = false
         this.wheels.engineForce = 0
+
+        // Forward
         if(this.game.inputs.keys.forward)
-            this.wheels.engineForce += this.wheels.engineForceMax
+        {
+            if(!this.goingForward && !this.stop.active)
+                reverseBrake = true
+            else
+                this.wheels.engineForce += this.wheels.engineForceMax
+        }
+
+        // Backward
         if(this.game.inputs.keys.backward)
-            this.wheels.engineForce -= this.wheels.engineForceMax
+        {
+            if(this.goingForward && !this.stop.active)
+                reverseBrake = true
+            else
+                this.wheels.engineForce -= this.wheels.engineForceMax
+        }
 
         if(this.game.inputs.keys.boost)
             this.wheels.engineForce *= this.wheels.engineBoostMultiplier
@@ -406,7 +422,7 @@ export class Vehicle
         this.controller.setWheelSteering(1, this.wheels.steering)
 
         let brake = this.wheels.brakePerpetualStrength
-        if(this.game.inputs.keys.brake)
+        if(this.game.inputs.keys.brake || reverseBrake)
         {
             this.wheels.engineForce *= 0.5
             brake = this.wheels.brakeStrength
@@ -422,42 +438,16 @@ export class Vehicle
     updatePostPhysics()
     {
         // Various measures
-        this.position.copy(this.chassis.physical.body.translation())
+        const newPosition = new THREE.Vector3().copy(this.chassis.physical.body.translation())
+        this.direction = newPosition.clone().sub(this.position).normalize()
+        this.position.copy(newPosition)
         this.sideward.set(1, 0, 0).applyQuaternion(this.chassis.physical.body.rotation())
         this.upward.set(0, 1, 0).applyQuaternion(this.chassis.physical.body.rotation())
         this.forward.set(0, 0, 1).applyQuaternion(this.chassis.physical.body.rotation())
         this.speed = this.controller.currentVehicleSpeed()
         this.absoluteSpeed = Math.abs(this.speed)
         this.upsideDownRatio = this.upward.dot(new THREE.Vector3(0, - 1, 0)) * 0.5 + 0.5
-        
-        // Wheels
-        this.wheels.visualSteering += (this.wheels.steering - this.wheels.visualSteering) * this.game.time.deltaScaled * 16
-
-        this.wheels.inContact = 0
-
-        for(let i = 0; i < 4; i++)
-        {
-            const wheel = this.wheels.items[i]
-
-            if(!this.game.inputs.keys.brake)
-            {
-                if(!this.stop.active)
-                    wheel.visual.rotation.z -= (this.speed * this.game.time.deltaScaled) / this.wheels.settings.radius
-            }
-
-            if(i === 0 || i === 1)
-                wheel.visual.rotation.y = this.wheels.visualSteering
-
-            const suspensionY = wheel.basePosition.y - this.controller.wheelSuspensionLength(i)
-            wheel.visual.position.y += (suspensionY - wheel.visual.position.y) * 25 * this.game.time.deltaScaled
-
-            const inContact = this.controller.wheelIsInContact(i)
-            if(inContact)
-                this.wheels.inContact++
-
-            // Tracks
-            wheel.track.update(this.controller.wheelContactPoint(i), inContact)
-        }
+        this.goingForward = this.direction.dot(this.sideward) > 0.5
 
         // Stop
         if(this.absoluteSpeed < this.stop.lowEdge)
@@ -481,6 +471,35 @@ export class Vehicle
         {
             if(this.flip.active)
                 this.flip.deactivate()
+        }
+        
+        // Wheels
+        this.wheels.visualSteering += (this.wheels.steering - this.wheels.visualSteering) * this.game.time.deltaScaled * 16
+
+        this.wheels.inContact = 0
+
+        for(let i = 0; i < 4; i++)
+        {
+            const wheel = this.wheels.items[i]
+
+            if(!this.game.inputs.keys.brake || this.game.inputs.keys.forward || this.game.inputs.keys.backward)
+            {
+                if(!this.stop.active)
+                    wheel.visual.rotation.z -= (this.speed * this.game.time.deltaScaled) / this.wheels.settings.radius
+            }
+
+            if(i === 0 || i === 1)
+                wheel.visual.rotation.y = this.wheels.visualSteering
+
+            const suspensionY = wheel.basePosition.y - this.controller.wheelSuspensionLength(i)
+            wheel.visual.position.y += (suspensionY - wheel.visual.position.y) * 25 * this.game.time.deltaScaled
+
+            const inContact = this.controller.wheelIsInContact(i)
+            if(inContact)
+                this.wheels.inContact++
+
+            // Tracks
+            wheel.track.update(this.controller.wheelContactPoint(i), inContact)
         }
 
         // View

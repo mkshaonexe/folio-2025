@@ -17,7 +17,7 @@ export class World
         this.floor = new Floor()
         this.grass = new Grass()
         // this.setTestCube()
-        // this.setAxesHelper()
+        this.setAxesHelper()
         this.setBushes()
         // this.setTest()
     }
