@@ -39,9 +39,7 @@ export class BlackFriday
         })
 
         if(this.game.debug.active)
-        {
             this.intro.hide()
-        }
     }
 
     checkMobile()
