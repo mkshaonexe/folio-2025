@@ -72,6 +72,8 @@ export class BlackFriday
 
         for(const _closeElement of this.intro.closeElements)
         {
+            _closeElement.classList.remove('is-muted')
+            _closeElement.innerText = 'Start searching'
             _closeElement.addEventListener('click', (event) =>
             {
                 event.preventDefault()
