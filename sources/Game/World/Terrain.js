@@ -10,6 +10,7 @@ export class Terrain
         this.game = Game.getInstance()
 
         this.geometry = this.game.resources.terrainModel.scene.children[0].geometry
+        this.subdivision = 256
 
         // this.setGrid()
         this.setGround()
@@ -131,23 +132,24 @@ export class Terrain
 
     setPhysicalHeightfield()
     {
+        console.log(this.geometry.attributes.position)
         // Extract heights from geometry
         const positionAttribute = this.geometry.attributes.position
         const totalCount = positionAttribute.count
         const rowsCount = Math.sqrt(totalCount)
         const heights = new Float32Array(totalCount)
-        const halfExtent = 256 / 2
+        const halfExtent = this.subdivision / 2
 
         for(let i = 0; i < totalCount; i++)
         {
             const x = positionAttribute.array[i * 3 + 0]
             const y = positionAttribute.array[i * 3 + 1]
             const z = positionAttribute.array[i * 3 + 2]
-            const indexX = ((x / (halfExtent * 2)) + 0.5) * (rowsCount - 1)
-            const indexZ = ((z / (halfExtent * 2)) + 0.5) * (rowsCount - 1)
+            const indexX = Math.round(((x / (halfExtent * 2)) + 0.5) * (rowsCount - 1))
+            const indexZ = Math.round(((z / (halfExtent * 2)) + 0.5) * (rowsCount - 1))
             const index = indexZ + indexX * rowsCount
 
-            heights[Math.round(index)] = y
+            heights[index] = y
         }
 
         this.game.entities.add({
@@ -155,7 +157,7 @@ export class Terrain
             friction: 0.25,
             restitution: 0,
             colliders: [
-                { shape: 'heightfield', parameters: [ rowsCount - 1, rowsCount - 1, heights, { x: 256, y: 1, z: 256 } ] }
+                { shape: 'heightfield', parameters: [ rowsCount - 1, rowsCount - 1, heights, { x: this.subdivision, y: 1, z: this.subdivision } ] }
             ]
         })
     }
