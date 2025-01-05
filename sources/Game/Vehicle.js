@@ -250,12 +250,18 @@ export class Vehicle
         
         this.stop.activate = () =>
         {
+            if(this.stop.active)
+                return
+
             this.stop.active = true
             this.events.trigger('stop')
         }
         
         this.stop.deactivate = () =>
         {
+            if(!this.stop.active)
+                return
+                
             this.stop.active = false
             this.events.trigger('start')
         }
@@ -269,12 +275,18 @@ export class Vehicle
         
         this.flip.activate = () =>
         {
+            if(this.flip.active)
+                return
+                
             this.flip.active = true
             this.events.trigger('flip')
         }
         
         this.flip.deactivate = () =>
         {
+            if(!this.flip.active)
+                return
+                
             this.flip.active = false
             this.events.trigger('unflip')
         }
@@ -288,12 +300,18 @@ export class Vehicle
         
         this.inWater.activate = () =>
         {
+            if(this.inWater.active)
+                return
+
             this.inWater.active = true
             this.events.trigger('inWater')
         }
         
         this.inWater.deactivate = () =>
         {
+            if(!this.inWater.active)
+                return
+                
             this.inWater.active = false
             this.events.trigger('outWater')
         }
@@ -614,39 +632,21 @@ export class Vehicle
 
         // Stop
         if(this.absoluteSpeed < this.stop.lowEdge)
-        {
-            if(!this.stop.active)
-                this.stop.activate()
-        }
+            this.stop.activate()
         else if(this.absoluteSpeed > this.stop.highEdge)
-        {
-            if(this.stop.active)
-                this.stop.deactivate()
-        }
+            this.stop.deactivate()
 
         // Flip
         if(this.upsideDownRatio > this.flip.edge)
-        {
-            if(!this.flip.active)
-                this.flip.activate()
-        }
+            this.flip.activate()
         else
-        {
-            if(this.flip.active)
-                this.flip.deactivate()
-        }
+            this.flip.deactivate()
 
         // In water
         if(this.position.y < this.inWater.threshold)
-        {
-            if(!this.inWater.active)
-                this.inWater.activate()
-        }
+            this.inWater.activate()
         else
-        {
-            if(this.inWater.active)
-                this.inWater.deactivate()
-        }
+            this.inWater.deactivate()
         
         // Wheels
         this.wheels.visualSteering += (this.wheels.steering - this.wheels.visualSteering) * this.game.time.deltaScaled * 16
