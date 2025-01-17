@@ -21,6 +21,7 @@ import { DayCycles } from './DayCycles.js'
 import { Noises } from './Noises.js'
 import { Wind } from './Wind.js'
 import { TerrainData } from './TerrainData.js'
+import { Explosions } from './Explosions.js'
 
 export class Game
 {
@@ -129,6 +130,7 @@ export class Game
         this.materials = new Materials()
         this.entities = new Entities()
         this.physics = new Physics()
+        this.explosions = new Explosions()
         this.groundData = new GroundData()
         this.vehicle = new Vehicle()
         this.world = new World()

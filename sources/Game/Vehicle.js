@@ -55,6 +55,7 @@ export class Vehicle
         this.setHydraulics()
         this.setBlinkers()
         this.setAntenna()
+        this.setExplosions()
 
         this.game.time.events.on('tick', () =>
         {
@@ -127,6 +128,7 @@ export class Vehicle
             },
             this.parts.chassis
         )
+        this.chassisMass = this.chassis.physical.body.mass()
     }
 
     setWheels()
@@ -365,13 +367,13 @@ export class Vehicle
             const forwardAbsolute = Math.abs(forwardDot)
             const upwarddAbsolute = Math.abs(upwarddDot)
 
-            const impulse = new THREE.Vector3(0, 1, 0).multiplyScalar(this.unstuck.force * this.chassis.physical.body.mass())
+            const impulse = new THREE.Vector3(0, 1, 0).multiplyScalar(this.unstuck.force * this.chassisMass)
             this.chassis.physical.body.applyImpulse(impulse)
 
             // Upside down
             if(upwarddAbsolute > sidewardAbsolute && upwarddAbsolute > forwardAbsolute)
             {
-                const torqueX = 0.8 * this.chassis.physical.body.mass()
+                const torqueX = 0.8 * this.chassisMass
                 const torque = new THREE.Vector3(torqueX, 0, 0)
                 torque.applyQuaternion(this.chassis.physical.body.rotation())
                 this.chassis.physical.body.applyTorqueImpulse(torque)
@@ -379,8 +381,8 @@ export class Vehicle
             // On the side
             else
             {
-                const torqueX = sidewardDot * 0.4 * this.chassis.physical.body.mass()
-                const torqueZ = - forwardDot * 0.8 * this.chassis.physical.body.mass()
+                const torqueX = sidewardDot * 0.4 * this.chassisMass
+                const torqueZ = - forwardDot * 0.8 * this.chassisMass
                 const torque = new THREE.Vector3(torqueX, 0, torqueZ)
                 torque.applyQuaternion(this.chassis.physical.body.rotation())
                 this.chassis.physical.body.applyTorqueImpulse(torque)
@@ -516,6 +518,30 @@ export class Vehicle
 
         this.game.materials.updateObject(this.antenna.head)
         this.game.scene.add(this.antenna.head)
+    }
+
+    setExplosions()
+    {
+        this.game.explosions.events.on('explosion', (coordinates) =>
+        {
+            const direction = this.position.clone().sub(coordinates)
+            direction.y = 0
+            const distance = Math.hypot(direction.x, direction.z)
+
+            const strength = remapClamp(distance, 1, 7, 1, 0)
+            const impulse = direction.clone().normalize()
+            impulse.y = 1
+            impulse.setLength(strength * this.chassisMass * 4)
+
+            if(strength > 0)
+            {
+                const point = direction.negate().setLength(0).add(this.position)
+                requestAnimationFrame(() =>
+                {
+                    this.chassis.physical.body.applyImpulseAtPoint(impulse, point)
+                })
+            }
+        })
     }
 
     updatePrePhysics()

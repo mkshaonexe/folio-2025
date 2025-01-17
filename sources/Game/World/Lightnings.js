@@ -25,9 +25,15 @@ export class Lightnings
         this.setAnticipationParticles()
         this.setArc()
         this.setExplosionParticles()
+        
+        this.setInterval()
 
-        gsap.delayedCall(1, () => { this.create(new THREE.Vector3(3, 0, 2)) })
-        gsap.delayedCall(4, () => { this.create(new THREE.Vector3(-3, 0, 2)) })
+        // Test
+        // setInterval(() =>
+        // {
+        //     this.create(new THREE.Vector3(22, 0, 1))
+        // }, 5000)
+        // this.create(new THREE.Vector3(22, 0, 1))
     }
 
     setAnticipationParticles()
@@ -37,7 +43,9 @@ export class Lightnings
         this.anticipationParticles.duration = 5
 
         // Uniforms
+        const durationUniform = uniform(this.anticipationParticles.duration)
         const scaleUniform = uniform(0.07)
+        const elevationUniform = uniform(1.5)
 
         // Buffers
         const positionArray = new Float32Array(this.anticipationParticles.count * 3)
@@ -69,7 +77,7 @@ export class Lightnings
             const finalPosition = this.anticipationParticles.positionAttribute.toVar()
             const timeProgress = min(localTime.div(this.anticipationParticles.duration), 1)
             
-            finalPosition.y.addAssign(timeProgress.mul(1.5))
+            finalPosition.y.addAssign(timeProgress.mul(elevationUniform))
 
             return finalPosition
         })
@@ -102,7 +110,16 @@ export class Lightnings
             mesh.count = this.anticipationParticles.count
             this.game.scene.add(mesh)
 
-            return material
+            return mesh
+        }
+
+        if(this.game.debug.active)
+        {
+            this.debugPanel
+                .addBinding(this.anticipationParticles, 'duration', { min: 0, max: 10, step: 0.01 })
+                .on('change', () => { durationUniform.value = this.anticipationParticles.duration })
+            this.debugPanel.addBinding(scaleUniform, 'value', { label: 'anticipationParticlesScale', min: 0, max: 1, step: 0.001 })
+            this.debugPanel.addBinding(elevationUniform, 'value', { label: 'anticipationParticlesElevation', min: 0, max: 5, step: 0.01 })
         }
     }
 
@@ -180,7 +197,7 @@ export class Lightnings
             mesh.rotation.y = Math.random() * 2
             this.game.scene.add(mesh)
             
-            return material
+            return mesh
         }
     }
 
@@ -256,8 +273,10 @@ export class Lightnings
             mesh.count = this.explosionParticles.count
             mesh.rotation.y = Math.random() * 2
             this.game.scene.add(mesh)
+
+            gsap.to(mesh.position, { y: -1, duration: this.explosionParticles.duration })
             
-            return material
+            return mesh
         }
     }
 
@@ -269,6 +288,8 @@ export class Lightnings
 
         gsap.delayedCall(this.anticipationParticles.duration, () =>
         {
+            this.game.explosions.explode(coordinates)
+            
             disposables.push(this.arc.create(coordinates))
             disposables.push(this.explosionParticles.create(coordinates))
 
@@ -277,9 +298,27 @@ export class Lightnings
             {
                 for(const disposable of disposables)
                 {
-                    disposable.dispose()
+                    disposable.removeFromParent()
+                    disposable.material.dispose()
                 }
             })
         })
+    }
+
+    setInterval()
+    {
+        const tryCreate = () =>
+        {
+            const focusPointPosition = this.game.view.focusPoint.position
+            this.create(new THREE.Vector3(
+                focusPointPosition.x + (Math.random() - 0.5) * this.game.view.optimalArea.radius * 2,
+                0,
+                focusPointPosition.z + (Math.random() - 0.5) * this.game.view.optimalArea.radius * 2
+            ))
+
+            gsap.delayedCall(Math.random() * 1, tryCreate)
+        }
+
+        tryCreate()
     }
 }
