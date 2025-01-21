@@ -1,8 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { attribute, color, float, Fn, hash, instancedArray, instanceIndex, materialNormal, max, min, mod, normalGeometry, normalWorld, positionGeometry, rotate, rotateUV, sin, smoothstep, step, storage, texture, transformNormalToView, uniform, vec2, vec3, vec4 } from 'three/tsl'
-import { normalLocal } from 'three/tsl'
-import { normalView } from 'three/tsl'
+import { float, Fn, hash, instancedArray, instanceIndex, materialNormal, max, mod, positionGeometry, rotateUV, sin, smoothstep, step, storage, texture, uniform, vec2, vec3, vec4 } from 'three/tsl'
 
 export class Leaves
 {
