@@ -72,10 +72,7 @@ export class Vehicle
     {
         this.parts = {}
 
-        // Chassis
-        this.parts.chassis = this.game.resources.vehicle.scene.getObjectByName('chassis')
-        this.parts.chassis.rotation.reorder('YXZ')
-        this.parts.chassis.traverse((child) =>
+        this.game.resources.vehicle.scene.traverse((child) =>
         {
             if(child.isMesh)
             {
@@ -84,6 +81,10 @@ export class Vehicle
                 child.material.shadowSide = THREE.BackSide
             }
         })
+
+        // Chassis
+        this.parts.chassis = this.game.resources.vehicle.scene.getObjectByName('chassis')
+        this.parts.chassis.rotation.reorder('YXZ')
         this.game.materials.updateObject(this.parts.chassis)
 
         // Blinker left
@@ -98,15 +99,6 @@ export class Vehicle
 
         // Wheel
         this.parts.wheel = this.game.resources.vehicle.scene.getObjectByName('wheel')
-        this.parts.wheel.traverse((child) =>
-        {
-            if(child.isMesh)
-            {
-                child.receiveShadow = true
-                child.castShadow = true
-                child.material.shadowSide = THREE.BackSide
-            }
-        })
         this.game.materials.updateObject(this.parts.wheel)
     }
 

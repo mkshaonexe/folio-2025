@@ -78,7 +78,7 @@ export class Lighting
         this.lightBounceDistance = uniform(float(1.5))
         this.lightBounceMultiplier = uniform(float(1))
 
-        this.shadowColor = uniform(this.game.dayCycles.values.properties.shadowColor.value)
+        this.shadowColor = uniform(this.game.dayCycles.properties.shadowColor.value)
         this.coreShadowEdgeLow = uniform(float(-0.25))
         this.coreShadowEdgeHigh = uniform(float(1))
 
@@ -277,7 +277,7 @@ export class Lighting
         this.helper.lookAt(this.game.view.focusPoint.position)
 
         // Apply day cycles values
-        this.colorUniform.value.copy(this.game.dayCycles.values.properties.lightColor.value)
-        this.intensityUniform.value = this.game.dayCycles.values.properties.lightIntensity.value
+        this.colorUniform.value.copy(this.game.dayCycles.properties.lightColor.value)
+        this.intensityUniform.value = this.game.dayCycles.properties.lightIntensity.value
     }
 }

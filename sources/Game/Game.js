@@ -18,11 +18,14 @@ import { Lighting } from './Ligthing.js'
 import { Materials } from './Materials.js'
 import { Entities } from './Entities.js'
 import { Fog } from './Fog.js'
-import { DayCycles } from './DayCycles.js'
+import { DayCycles } from './Cycles/DayCycles.js'
+import { Weather } from './Weather.js'
 import { Noises } from './Noises.js'
 import { Wind } from './Wind.js'
 import { TerrainData } from './TerrainData.js'
 import { Explosions } from './Explosions.js'
+import { Cycles } from './Cycles/Cycles.js'
+import { YearCycles } from './Cycles/YearCycles.js'
 
 export class Game
 {
@@ -128,6 +131,8 @@ export class Game
             this.noises = new Noises()
             // this.sounds = new Sounds()
             this.dayCycles = new DayCycles()
+            this.yearCycles = new YearCycles()
+            this.weather = new Weather()
             this.wind = new Wind()
             this.terrainData = new TerrainData()
             this.lighting = new Lighting()
@@ -142,6 +147,11 @@ export class Game
             // this.monitoring = new Monitoring()
 
             this.rendering.renderer.setAnimationLoop((elapsedTime) => { this.ticker.update(elapsedTime) })
+
+            // this.ticker.events.on('tick', () =>
+            // {
+            //     console.log(this.yearCycles.properties.temperature)
+            // })
         })
     }
 }

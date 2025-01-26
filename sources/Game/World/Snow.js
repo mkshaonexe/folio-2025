@@ -330,9 +330,8 @@ export class Snow
             const twinkleStrength = twinkleProgress.sub(twinkleRandom1).fract().sub(0.5).abs().remapClamp(0, this.twinkleScarcity, 1, 0).toVar()
 
             const twinkleShape = twinkleUvLoop.sub(0.5).length().step(twinkleRandom2.mul(0.5))
-            twinkleStrength.mulAssign(twinkleShape)
+            twinkleStrength.mulAssign(twinkleShape.mul(this.twinkleStrength))
 
-            // return vec4(vec3(twinkleStrength), 1)
             return vec4(lightOutput.add(twinkleStrength), alpha)
         })()
 

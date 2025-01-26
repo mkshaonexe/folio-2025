@@ -44,9 +44,9 @@ export class Fog
     update()
     {
         // Apply day cycles values
-        this.colorA.value.copy(this.game.dayCycles.values.properties.fogColorA.value)
-        this.colorB.value.copy(this.game.dayCycles.values.properties.fogColorB.value)
-        this.near.value = this.game.view.optimalArea.nearDistance + this.game.dayCycles.values.properties.fogNearRatio.value * this.amplitude
-        this.far.value = this.game.view.optimalArea.nearDistance + this.game.dayCycles.values.properties.fogFarRatio.value * this.amplitude
+        this.colorA.value.copy(this.game.dayCycles.properties.fogColorA.value)
+        this.colorB.value.copy(this.game.dayCycles.properties.fogColorB.value)
+        this.near.value = this.game.view.optimalArea.nearDistance + this.game.dayCycles.properties.fogNearRatio.value * this.amplitude
+        this.far.value = this.game.view.optimalArea.nearDistance + this.game.dayCycles.properties.fogFarRatio.value * this.amplitude
     }
 }

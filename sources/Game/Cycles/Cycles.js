@@ -1,0 +1,219 @@
+import * as THREE from 'three'
+import { Game } from '../Game.js'
+import { lerp, remap, smoothstep } from '../utilities/maths.js'
+import { Events } from '../Events.js'
+
+export class Cycles
+{
+    constructor(name = 'Cycles', duration = 10)
+    {
+        this.game = Game.getInstance()
+
+        this.name = name
+        this.duration = duration
+        this.progress = this.getNewProgress()
+        this.manual = false
+        this.manualProgress = this.progress
+        this.keyframesList = []
+        this.properties = []
+        this.punctualEvents = []
+        this.intervalEvents = []
+        this.events = new Events()
+
+        if(this.game.debug.active)
+        {
+            this.debugPanel = this.game.debug.panel.addFolder({
+                title: this.name,
+                expanded: false,
+            })
+
+            this.debugPanel
+                .addBinding(this, 'manualProgress', { min: 0, max: 1, step: 0.0001 })
+                .on('change', () => { this.manual = true })
+
+            this.game.debug.addButtons(
+                this.debugPanel,
+                { auto: () => { this.manual = false } },
+                'mode'
+            )
+        }
+
+        this.setKeyframes()
+
+        this.game.ticker.events.on('tick', () =>
+        {
+            this.update()
+        })
+    }
+
+    getKeyframesDescriptions()
+    {
+        return [
+            [
+                { properties: { test: 0 }, stop: 0.0 },
+                { properties: { test: 1 }, stop: 0.5 },
+                { properties: { test: 0 }, stop: 1 },
+            ]
+        ]
+    }
+
+    setKeyframes()
+    {
+        const keyframesDescriptions = this.getKeyframesDescriptions()
+
+        for(const keyframesDescription of keyframesDescriptions)
+        {
+            this.values = this.createKeyframes(keyframesDescription)
+        }
+    }
+
+    createKeyframes(steps)
+    {
+        const keyframes = {}
+        keyframes.steps = steps
+
+        for(const key in steps[0].properties)
+        {
+            if(key !== 'stop')
+            {
+                const property = {}
+                property.value = steps[0].properties[key]
+
+                if(property.value instanceof THREE.Color)
+                {
+                    property.type = 'color'
+                    property.value = property.value.clone()
+                }
+                else if(typeof property.value === 'number')
+                {
+                    property.type = 'number'
+                    property.value = property.value
+                }
+
+                this.properties[key] = property
+            }
+        }
+
+        // Add fake steps to fix non 0-1 stops
+        const firstStep = steps[0]
+        const lastStep = steps[steps.length - 1]
+
+        if(lastStep.stop < 1)
+        {
+            const newStep = { ...firstStep }
+            newStep.stop = 1 + newStep.stop
+            steps.push(newStep)
+        }
+
+        if(firstStep.stop > 0)
+        {
+            const newStep = { ...lastStep }
+            newStep.stop = - (1 - newStep.stop)
+            steps.unshift(newStep)
+        }
+
+        this.keyframesList.push(keyframes)
+
+        return keyframes
+    }
+
+    getNewProgress()
+    {
+        // New progress
+        let newProgress = 0
+
+        if(this.manual)
+            newProgress = this.manualProgress
+        else
+            newProgress = ((new Date()).getTime() / 1000 / this.duration) % 1
+
+        return newProgress
+    }
+
+    update()
+    {
+        const newProgress = this.getNewProgress()
+
+        // Test punctual events
+        for(const punctualEvent of this.punctualEvents)
+        {
+            if(newProgress >= punctualEvent.progress && this.progress < punctualEvent.progress)
+            {
+                this.events.trigger(punctualEvent.name)
+            }
+        }
+
+        // Test interval events
+        for(const intervalEvent of this.intervalEvents)
+        {
+            const inInterval = newProgress > intervalEvent.startProgress && newProgress < intervalEvent.endProgress
+
+            if(inInterval && !intervalEvent.inInverval)
+            {
+                intervalEvent.inInverval = true
+                this.events.trigger(intervalEvent.name, [ intervalEvent.inInverval ])
+            }
+            if(!inInterval && intervalEvent.inInverval)
+            {
+                intervalEvent.inInverval = false
+                this.events.trigger(intervalEvent.name, [ intervalEvent.inInverval ])
+            }
+        }
+
+        // Progress
+        this.progress = newProgress % 1
+
+        for(const keyframe of this.keyframesList)
+        {
+            // Indices
+            let indexPrev = -1
+            let index = 0
+
+            for(const step of keyframe.steps)
+            {
+                if(step.stop <= this.progress)
+                    indexPrev = index
+
+                index++
+            }
+
+            const indexNext = (indexPrev + 1) % keyframe.steps.length
+
+            // Steps
+            const stepPrevious = keyframe.steps[indexPrev]
+            const stepNext = keyframe.steps[indexNext]
+
+            // Mix ratio
+            let mixRatio = 0
+            // if(keyframe.interpolation === 'linear')
+            //     mixRatio = remap(this.progress, stepPrevious.stop, stepNext.stop, 0, 1)
+            // else if(keyframe.interpolation === 'smoothstep')
+                mixRatio = smoothstep(this.progress, stepPrevious.stop, stepNext.stop)
+
+            // Interpolate properties
+            for(const key in this.properties)
+            {
+                const property = this.properties[key]
+
+                if(property.type === 'color')
+                {
+                    property.value.lerpColors(stepPrevious.properties[key], stepNext.properties[key], mixRatio)
+                }
+                else if(property.type === 'number')
+                {
+                    property.value = lerp(stepPrevious.properties[key], stepNext.properties[key], mixRatio)
+                }
+            }
+        }
+    }
+
+    addPunctualEvent(name, progress)
+    {
+        this.punctualEvents.push({ name, progress })
+    }
+
+    addIntervalEvent(name, startProgress, endProgress)
+    {
+        this.intervalEvents.push({ name, startProgress, endProgress, inInverval: false })
+    }
+}
