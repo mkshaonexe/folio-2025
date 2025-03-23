@@ -29,7 +29,6 @@ export class Altar
         this.setBeam()
         this.setBeamParticles()
         this.setCounter()
-        this.setCounterParticles()
         this.setArea()
 
         this.updateValue(1)
@@ -287,80 +286,28 @@ export class Altar
             context.fillText(formatedValue, width * 0.5, height * 0.55)
 
             textTexture.needsUpdate = true
-        }
-    }
 
-    setCounterParticles()
-    {
-        const count = 40
-
-        // Uniforms
-        const progress = uniform(0)
-        
-        // Attributes
-        const positionArray = new Float32Array(count * 3)
-        const scaleArray = new Float32Array(count)
-        const randomArray = new Float32Array(count)
-        
-        for(let i = 0; i < count; i++)
-        {
-            const i3 = i * 3
-
-            const angle = Math.random() * Math.PI * 2
-            const radius = Math.random() * 1.5
-            positionArray[i3 + 0] = Math.cos(angle) * radius
-            positionArray[i3 + 1] = Math.sin(angle) * radius
-            positionArray[i3 + 2] = 0
-
-            scaleArray[i] = Math.random()
-            randomArray[i] = Math.random()
-        }
-        const position = instancedArray(positionArray, 'vec3').toAttribute()
-        const scale = instancedArray(scaleArray, 'float').toAttribute()
-        const random = instancedArray(randomArray, 'float').toAttribute()
-
-        // Geometry
-        const particlesGeometry = new THREE.PlaneGeometry(0.2, 0.2)
-
-        // Material
-        const particlesMaterial = new THREE.SpriteNodeMaterial()
-        particlesMaterial.outputNode = Fn(() =>
-        {
-            const distanceToCenter = uv().sub(0.5).length()
-            const gooColor = this.game.fog.strength.mix(vec3(0), this.game.fog.color) // Fog
-            const emissiveColor = this.colorBottom.mul(this.emissiveBottom)
-            const finalColor = mix(gooColor, emissiveColor, step(distanceToCenter, 0.35))
-
-            // Discard
-            distanceToCenter.greaterThan(0.5).discard()
-
-            return vec4(finalColor, 1)
-        })()
-        particlesMaterial.positionNode = Fn(() =>
-        {
-            const localProgress = progress.remapClamp(0, 0.5, 1, 0).pow(6).oneMinus()
-            const finalPosition = position.mul(localProgress)
-            finalPosition.y.addAssign(progress.mul(random))
-            return finalPosition
-        })()
-        particlesMaterial.scaleNode = Fn(() =>
-        {
-            const finalScale = smoothstep(1, 0.3, progress).mul(scale)
-            return finalScale
-        })()
-        
-        // Mesh
-        const particles = new THREE.Mesh(particlesGeometry, particlesMaterial)
-        particles.count = count
-        particles.position.z -= 0.1
-        this.altarCounter.add(particles)
-
-        this.animateCounterParticles = () =>
-        {
-            gsap.fromTo(
-                progress,
-                { value: 0 },
-                { value: 1, ease: 'linear', duration: 3 },
+            gsap.to(
+                mesh.scale,
+                {
+                    x: 1.5,
+                    y: 1.5,
+                    duration: 0.3,
+                    overwrite: true,
+                    onComplete: () =>
+                    {
+                        gsap.to(
+                            mesh.scale,
+                            {
+                                x: 1,
+                                y: 1,
+                                duration: 2,
+                                ease: 'elastic.out(1,0.3)',
+                                overwrite: true
+                            }
+                        )
+                    }
+                }
             )
         }
     }
@@ -389,7 +336,6 @@ export class Altar
         if(value !== this.value)
         {
             this.updateCounter(value)
-            this.animateCounterParticles()
 
             this.value = value
         }
