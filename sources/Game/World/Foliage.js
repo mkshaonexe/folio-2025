@@ -87,7 +87,9 @@ export class Foliage
 
         this.material.positionNode = Fn( ( { object } ) =>
         {
-            instance(object.count, this.instanceMatrix).append()
+            // Sending "instanceMatrix" twice because mandatory 3 parameters
+            // TODO: Update after Three.js fix
+            instance(object.count, this.instanceMatrix, this.instanceMatrix).append()
 
             return positionLocal.add(vec3(wind.x, 0, wind.y).mul(multiplier))
         })()

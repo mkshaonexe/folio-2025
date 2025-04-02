@@ -26,11 +26,6 @@ export class Flowers
         this.setGeometry()
         this.setMaterial()
         this.setInstancedMesh()
-
-        this.game.ticker.events.on('tick', () =>
-        {
-            this.update()
-        })
     }
 
     setColors()
@@ -185,7 +180,9 @@ export class Flowers
 
         this.material.positionNode = Fn( ( { object } ) =>
         {
-            instance(object.count, this.instanceMatrix).append()
+            // Sending "instanceMatrix" twice because mandatory 3 parameters
+            // TODO: Update after Three.js fix
+            instance(object.count, this.instanceMatrix, this.instanceMatrix).append()
 
             return positionLocal.add(vec3(wind.x, 0, wind.y).mul(multiplier))
         })()
@@ -225,6 +222,9 @@ export class Flowers
         this.instanceMatrix = new THREE.InstancedBufferAttribute(new Float32Array(this.mesh.count * 16), 16)
         this.instanceMatrix.setUsage(THREE.StaticDrawUsage)
 
+        // this.instanceMatrix = new THREE.InstancedBufferAttribute(new Float32Array(this.mesh.count * 3), 16)
+        // this.instanceMatrix.setUsage(THREE.StaticDrawUsage)
+
         this.instanceColorIndex = new THREE.InstancedBufferAttribute(new Float32Array(this.colorIndices), 1)
         this.instanceColorIndex.setUsage(THREE.StaticDrawUsage)
         
@@ -234,11 +234,5 @@ export class Flowers
             _transformMatrix.toArray(this.instanceMatrix.array, i * 16)
             i++
         }
-    }
-
-    update()
-    {
-        const intensityStart = smoothstep(this.game.dayCycles.progress, 0.25, 0.4)
-        const intensityEnd = smoothstep(this.game.dayCycles.progress, 0.75, 0.6)
     }
 }
