@@ -14,31 +14,52 @@ export class Server
             localStorage.setItem('uuid', this.uuid)
         }
 
-        // Socket connexion
         this.connected = false
         this.initData = null
+        this.events = new Events()
+
+        // First connect attempt
+        this.connect()
+        
+        // Try connect
+        setInterval(() =>
+        {
+            if(!this.connected)
+                this.connect()
+        }, 2000)
+    }
+
+    connect()
+    {
         this.socket = new WebSocket(import.meta.env.VITE_SERVER_WS_URL)
         this.socket.binaryType = 'arraybuffer'
 
         this.socket.addEventListener('open', () =>
         {
             this.connected = true
+            this.events.trigger('connected')
 
+            // On message
             this.socket.addEventListener('message', (message) =>
             {
                 this.onReceive(message)
             })
+
+            // On close
+            this.socket.addEventListener('close', () =>
+            {
+                this.connected = false
+                this.events.trigger('disconnected')
+            })
         })
 
-        // Events
-        this.events = new Events()
     }
 
     onReceive(message)
     {
         const data = this.decode(message.data)
     
-        if(data.type === 'init')
+        if(data.type === 'init' && this.initData === null)
             this.initData = data
 
         this.events.trigger('message', [ data ])
