@@ -79,6 +79,7 @@ export class Bubble
         this.mesh.rotation.x = -Math.PI * 0.25
         this.mesh.rotation.y = Math.PI * 0.25
         this.mesh.visible = false
+        this.mesh.renderOrder = 2
         this.game.scene.add(this.mesh)
     }
 
