@@ -14,19 +14,23 @@ export class Server
             localStorage.setItem('uuid', this.uuid)
         }
 
+        this.connect = false
         this.connected = false
         this.initData = null
         this.events = new Events()
 
-        // First connect attempt
-        this.connect()
-        
-        // Try connect
-        setInterval(() =>
+        if(this.connect)
         {
-            if(!this.connected)
-                this.connect()
-        }, 2000)
+            // First connect attempt
+            this.connect()
+            
+            // Try connect
+            setInterval(() =>
+            {
+                if(!this.connected)
+                    this.connect()
+            }, 2000)
+        }
     }
 
     connect()

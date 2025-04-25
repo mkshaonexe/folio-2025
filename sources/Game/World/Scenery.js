@@ -34,15 +34,15 @@ export class Scenery
         this.birchTrees = new Trees('Birch Tree', this.game.resources.birchTreesVisualModel.scene, this.game.resources.birchTreesReferencesModel.scene.children, '#ff782b')
         this.oakTrees = new Trees('Oak Tree', this.game.resources.oakTreesVisualModel.scene, this.game.resources.oakTreesReferencesModel.scene.children, '#c4c557')
         this.cherryTrees = new Trees('Cherry Tree', this.game.resources.cherryTreesVisualModel.scene, this.game.resources.cherryTreesReferencesModel.scene.children, '#ff6da8')
-        // this.flowers = new Flowers()
+        this.flowers = new Flowers()
         this.bricks = new Bricks()
 
-        // if(this.references.altar && this.references.altarCounter && this.references.altarSkullEyes)
-        //     this.altar = new Altar(
-        //         this.references.altar[0].position,
-        //         this.references.altarCounter[0],
-        //         this.references.altarSkullEyes
-        //     )
+        if(this.references.altar && this.references.altarCounter && this.references.altarSkullEyes)
+            this.altar = new Altar(
+                this.references.altar[0].position,
+                this.references.altarCounter[0],
+                this.references.altarSkullEyes
+            )
 
         if(this.references.poleLightGlass && this.references.poleLights)
             this.poleLights = new PoleLights(
@@ -50,17 +50,17 @@ export class Scenery
                 this.references.poleLights
             )
             
-        // if(this.references.cookie && this.references.cookieBanner && this.references.cookieOvenHeat && this.references.cookieBlower && this.references.cookieChimney && this.references.cookieSpawner && this.references.cookieInteractiveArea && this.references.cookieTable)
-        //     this.cookieStand = new CookieStand(
-        //         this.references.cookie[0],
-        //         this.references.cookieBanner[0],
-        //         this.references.cookieOvenHeat[0],
-        //         this.references.cookieBlower[0],
-        //         this.references.cookieChimney[0].position,
-        //         this.references.cookieSpawner[0].position,
-        //         this.references.cookieInteractiveArea[0].position,
-        //         this.references.cookieTable[0].position
-        //     )
+        if(this.references.cookie && this.references.cookieBanner && this.references.cookieOvenHeat && this.references.cookieBlower && this.references.cookieChimney && this.references.cookieSpawner && this.references.cookieInteractiveArea && this.references.cookieTable)
+            this.cookieStand = new CookieStand(
+                this.references.cookie[0],
+                this.references.cookieBanner[0],
+                this.references.cookieOvenHeat[0],
+                this.references.cookieBlower[0],
+                this.references.cookieChimney[0].position,
+                this.references.cookieSpawner[0].position,
+                this.references.cookieInteractiveArea[0].position,
+                this.references.cookieTable[0].position
+            )
             
         if(this.references.bonfire && this.references.bonfireInteractiveArea && this.references.bonfireHashes)
             this.poleLights = new Bonfire(

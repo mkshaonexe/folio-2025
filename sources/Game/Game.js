@@ -64,8 +64,8 @@ export class Game
                 [
                     [ 'foliateTexture',                 'foliage/foliage.png',                          'texture' ],
                     [ 'bushesReferences',               'bushes/bushesReferences.glb',                  'gltf'    ],
-                    // [ 'vehicle',                        'vehicle/default.glb',                          'gltf'    ],
-                    [ 'vehicle',                        'vehicle/defaultAntenna.glb',                   'gltf'    ],
+                    [ 'vehicle',                        'vehicle/default.glb',                          'gltf'    ],
+                    // [ 'vehicle',                        'vehicle/defaultAntenna.glb',                   'gltf'    ],
                     [ 'playgroundVisual',               'playground/playgroundVisual.glb',              'gltf'    ],
                     [ 'playgroundPhysical',             'playground/playgroundPhysical.glb',            'gltf'    ],
                     [ 'floorKeysTexture',               'floor/keys.png',                               'texture' ],
@@ -92,8 +92,8 @@ export class Game
                     [ 'cookieBannerTexture',            'cookieStand/cookieBanner.png',                 'texture', (resource) => { resource.colorSpace = THREE.SRGBColorSpace; resource.flipY = false } ],
                     [ 'interactiveAreasKeyIconTexture', 'interactiveAreas/interactiveAreasKeyIcon.png', 'texture', (resource) => { resource.flipY = true; resource.minFilter = THREE.NearestFilter; resource.magFilter = THREE.NearestFilter; resource.generateMipmaps = false } ],
                     [ 'respawnsModel',                  'respawns/respawns.glb',                        'gltf'    ],
-                    [ 'easterEggVisualModel',           'easter/easterEggVisual.glb',                   'gltf'    ],
-                    [ 'easterEggReferencesModel',       'easter/easterEggReferences.glb',               'gltf'    ],
+                    // [ 'easterEggVisualModel',           'easter/easterEggVisual.glb',                   'gltf'    ],
+                    // [ 'easterEggReferencesModel',       'easter/easterEggReferences.glb',               'gltf'    ],
                     
                     // [ 'christmasTreeVisualModel',     'christmas/christmasTreeVisual.glb',     'gltf' ],
                     // [ 'christmasTreePhysicalModel',   'christmas/christmasTreePhysical.glb',   'gltf' ],
