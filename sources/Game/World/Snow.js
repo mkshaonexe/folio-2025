@@ -99,7 +99,7 @@ export class Snow
             {
                 const rainRatio = remapClamp(this.game.weather.rain.value, 0.05, 0.3, 0, 1) * remapClamp(this.game.weather.temperature.value, 0, -5, 0, 1)
                 const meltRatio = remapClamp(this.game.weather.temperature.value, 0, 10, 0, -1)
-                const elevationStrength = (rainRatio + meltRatio) * this.game.dayCycles.progressDelta * 10
+                const elevationStrength = (rainRatio + meltRatio) * Math.max(this.game.dayCycles.progressDelta, 0) * 10
 
                 let newElevation = this.elevation.value + elevationStrength
                 newElevation = clamp(newElevation, -1, 0.5)
