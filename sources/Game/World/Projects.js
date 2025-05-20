@@ -18,15 +18,6 @@ export class Projects
     constructor(references)
     {
         this.game = Game.getInstance()
-        this.references = references
-
-        this.state = Projects.STATE_CLOSED
-        this.index = 0
-        this.imageIndex = 0
-        this.currentProject = null
-        this.previousProject = null
-        this.nextProject = null
-        this.density = 200
 
         // Debug
         if(this.game.debug.active)
@@ -36,13 +27,16 @@ export class Projects
                 expanded: true,
             })
         }
+        
+        this.references = references
+        this.state = Projects.STATE_CLOSED
 
         this.setInteractiveArea()
         this.setInputs()
-        this.setCursor()
         this.setCinematic()
         this.setShadeMix()
         this.setTexts()
+        this.setProjects()
         this.setImages()
         this.setPagination()
         this.setAttributes()
@@ -53,6 +47,7 @@ export class Projects
         this.setPendulum()
         this.setBoard()
         this.setFlame()
+        this.setLabels()
 
         this.changeProject(0)
 
@@ -62,6 +57,17 @@ export class Projects
             this.debugPanel.addButton({ title: 'open', label: 'open' }).on('click', () => { this.open() })
             this.debugPanel.addButton({ title: 'close', label: 'close' }).on('click', () => { this.close() })
         }
+    }
+
+    setProjects()
+    {
+        this.projects = {}
+        this.projects.index = 0
+        this.projects.current = null
+        this.projects.next = null
+        this.projects.previous = null
+        this.projects.current = null
+        this.projects.items = projects
     }
 
     setInteractiveArea()
@@ -102,16 +108,6 @@ export class Projects
             {
                 this.url.open()
             }
-        })
-    }
-
-    setCursor()
-    {
-        this.cursor = {}
-        this.cursor.intersect = this.game.cursor.addIntersects({
-            name: 'projects',
-            active: false,
-            shapes: []
         })
     }
 
@@ -165,14 +161,14 @@ export class Projects
 
     setTexts()
     {
-        // const fontFamily = 'Pally-Medium'
-        // const fontWeight = 500
-        // const fontSizeMultiplier = 0.7
         this.texts = {}
+        
+        this.texts.density = 200
         this.texts.fontFamily = 'Amatic SC'
         this.texts.fontWeight = 700
         this.texts.fontSizeMultiplier = 1
         this.texts.baseColor = color('#ffffff')
+
         this.texts.createMaterialOnMesh = (mesh, textTexture) =>
         {
             // Material
@@ -194,59 +190,12 @@ export class Projects
             mesh.receiveShadow = false
             mesh.material = material
         }
-
-        // const settings = [
-        //     { name: 'title', mesh: this.references.get('title'), fontSize: fontSizeMultiplier * 0.4, width: 4, height: 0.6 },
-        //     { name: 'url', mesh: this.references.get('url'), fontSize: fontSizeMultiplier * 0.23, width: 4, height: 0.2 },
-        //     { name: 'previous', mesh: this.references.get('previous'), fontSize: fontSizeMultiplier * 0.3, width: 1.25, height: 0.75 },
-        //     { name: 'next', mesh: this.references.get('next'), fontSize: fontSizeMultiplier * 0.3, width: 1.25, height: 0.75 },
-        //     { name: 'role', mesh: this.references.get('role'), fontSize: fontSizeMultiplier * 0.25, width: 1.4, height: 0.45 },
-        //     { name: 'at', mesh: this.references.get('at'), fontSize: fontSizeMultiplier * 0.25, width: 1.4, height: 0.45 },
-        //     { name: 'with', mesh: this.references.get('with'), fontSize: fontSizeMultiplier * 0.25, width: 1.4, height: 0.45 },
-        // ]
-
-        // this.texts = {}
-        // for(const _settings of settings)
-        // {
-        //     const text = {}
-        //     text.textWrapper = new TextWrapper(
-        //         ['Chartogne Taillet'],
-        //         fontFamily,
-        //         fontWeight,
-        //         _settings.fontSize,
-        //         _settings.width,
-        //         _settings.height,
-        //         this.density,
-        //         'center'
-        //     )
-        //     text.mesh = _settings.mesh
-        //     text.mesh.castShadow = false
-        //     text.mesh.receiveShadow = false
-
-        //     const material = new THREE.MeshLambertNodeMaterial({ transparent: true })
-
-        //     const baseColor = color('#ffffff')
-        //     const alpha = texture(text.textWrapper.texture).r
-
-        //     const shadedOutput = this.game.lighting.lightOutputNodeBuilder(baseColor, float(1), normalWorld, float(1)).rgb
-        //     material.outputNode = vec4(
-        //         mix(
-        //             shadedOutput,
-        //             baseColor,
-        //             this.shadeMix.uniform
-        //         ),
-        //     alpha)
-        //     // material.outputNode = vec4(color('#ffffff'), texture(text.textWrapper.texture).r)
-        //     text.mesh.material = material
-
-        //     this.texts[_settings.name] = text
-        // }
     }
 
     setImages()
     {
         this.images = {}
-
+        this.images.index = 0
         this.images.direction = Projects.DIRECTION_NEXT
 
         // Mesh
@@ -319,7 +268,7 @@ export class Projects
         this.images.loadEnded = (key) =>
         {
             // Current image => Reveal
-            if(this.currentProject.images[this.imageIndex] === key)
+            if(this.projects.current.images[this.images.index] === key)
             {
                 this.images.textureNew.needsUpdate = true
                 gsap.to(this.images.loadProgress, { value: 1, duration: 1, overwrite: true })
@@ -331,8 +280,8 @@ export class Projects
         // Load sibling
         this.images.loadSibling = () =>
         {
-            let projectIndex = this.index
-            let imageIndex = this.imageIndex
+            let projectIndex = this.projects.index
+            let imageIndex = this.images.index
 
             if(this.images.direction === Projects.DIRECTION_PREVIOUS)
                 imageIndex -= 1
@@ -344,21 +293,21 @@ export class Projects
                 projectIndex -= 1
 
                 if(projectIndex < 0)
-                    projectIndex = projects.length - 1
+                    projectIndex = this.projects.items.length - 1
 
-                imageIndex = projects[projectIndex].images.length - 1
+                imageIndex = this.projects.items[projectIndex].images.length - 1
             }
-            else if(imageIndex > this.currentProject.images.length - 1)
+            else if(imageIndex > this.projects.current.images.length - 1)
             {
                 projectIndex += 1
 
-                if(projectIndex > projects.length - 1)
+                if(projectIndex > this.projects.items.length - 1)
                     projectIndex = 0
 
                 imageIndex = 0
             }
 
-            const key = projects[projectIndex].images[imageIndex]
+            const key = this.projects.items[projectIndex].images[imageIndex]
             const resource = this.images.getResourceAndLoad(key)
         }
 
@@ -409,7 +358,7 @@ export class Projects
             this.images.direction = direction
 
             // Get resource
-            const key = this.currentProject.images[this.imageIndex]
+            const key = this.projects.current.images[this.images.index]
             const resource = this.images.getResourceAndLoad(key)
 
             if(resource.loaded)
@@ -444,16 +393,40 @@ export class Projects
         this.pagination.items = []
 
         let i = 0
+        const intersectPagination = this.references.get('intersectPagination')
+
         for(const child of this.pagination.group.children)
         {
-            const item = {}
-            item.mesh = child
-            item.mesh.position.x = this.pagination.inter * i    
-            item.mesh.visible = false
-            item.visible = false
-            this.pagination.items.push(item)
+            if(child instanceof THREE.Mesh)
+            {
+                const item = {}
+                
+                item.index = i
+                item.visible = false
+                
+                item.mesh = child
+                item.mesh.position.x = this.pagination.inter * i    
+                item.mesh.visible = false
 
-            i++
+                item.intersectReference = intersectPagination[i]
+
+                item.intersect = this.game.cursor.addIntersects({
+                    active: false,
+                    shapes:
+                    [
+                        new THREE.Sphere(new THREE.Vector3(), item.intersectReference.scale.x)
+                    ],
+                    onClick: () =>
+                    {
+                        this.changeImage(item.index)
+                    }
+                }),
+                item.intersectReference.getWorldPosition(item.intersect.shapes[0].center)
+
+                this.pagination.items.push(item)
+
+                i++
+            }
         }
 
         this.pagination.update = () =>
@@ -461,13 +434,14 @@ export class Projects
             let i = 0
             for(const item of this.pagination.items)
             {
-                if(i <= this.currentProject.images.length - 1)
+                if(i <= this.projects.current.images.length - 1)
                 {
                     if(!item.visible)
                     {
                         gsap.to(item.mesh.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: 'power1.inOut', overwrite: true })
                         item.mesh.visible = true
                         item.visible = true
+                        item.intersect.active = true
                     }
                 }
                 else
@@ -479,16 +453,21 @@ export class Projects
                             item.mesh.visible = false
                         } })
                         item.visible = false
+                        item.intersect.active = false
                     }
                 }
 
-                item.mesh.rotation.z = this.imageIndex === i ? 0 : Math.PI
+                item.mesh.rotation.z = this.images.index === i ? 0 : Math.PI
 
                 i++
             }
 
-            const offset = - (this.currentProject.images.length - 1) * this.pagination.inter / 2
-            gsap.to(this.pagination.group.position, { x: offset, duration: 0.5, ease: 'power1.inOut', overwrite: true })
+            const offset = - (this.projects.current.images.length - 1) * this.pagination.inter / 2
+            gsap.to(this.pagination.group.position, { x: offset, duration: 0.5, ease: 'power1.inOut', overwrite: true, onComplete: () =>
+            {
+                for(const item of this.pagination.items)
+                    item.intersectReference.getWorldPosition(item.intersect.shapes[0].center)
+            } })
         }
     }
 
@@ -516,7 +495,7 @@ export class Projects
                 this.texts.fontSizeMultiplier * 0.25,
                 1.4,
                 0.45,
-                this.density,
+                this.texts.density,
                 'center'
             )
 
@@ -548,7 +527,7 @@ export class Projects
                 for(const name of this.attributes.names)
                 {
                     const item = this.attributes.items[name]
-                    const attribute = this.currentProject.attributes[name]
+                    const attribute = this.projects.current.attributes[name]
 
                     if(attribute)
                     {
@@ -573,6 +552,7 @@ export class Projects
         this.adjacents = {}
         this.adjacents.status = 'hidden'
 
+        // Previous
         this.adjacents.previous = {}
         this.adjacents.previous.group = this.references.get('previous')[0]
         this.adjacents.previous.inner = this.adjacents.previous.group.children[0]
@@ -583,11 +563,25 @@ export class Projects
             this.texts.fontSizeMultiplier * 0.3,
             1.25,
             0.75,
-            this.density,
+            this.texts.density,
             'center'
         )
         this.texts.createMaterialOnMesh(this.adjacents.previous.textMesh, this.adjacents.previous.textWrapper.texture)
+        
+        const intersectPrevious = this.references.get('intersectPrevious')[0]
+        this.adjacents.previous.intersect = this.game.cursor.addIntersects({
+            active: false,
+            shapes:
+            [
+                new THREE.Sphere(intersectPrevious.position, intersectPrevious.scale.x)
+            ],
+            onClick: () =>
+            {
+                this.previousProject()
+            }
+        })
 
+        // Next
         this.adjacents.next = {}
         this.adjacents.next.group = this.references.get('next')[0]
         this.adjacents.next.inner = this.adjacents.next.group.children[0]
@@ -598,11 +592,25 @@ export class Projects
             this.texts.fontSizeMultiplier * 0.3,
             1.25,
             0.75,
-            this.density,
+            this.texts.density,
             'center'
         )
         this.texts.createMaterialOnMesh(this.adjacents.next.textMesh, this.adjacents.next.textWrapper.texture)
 
+        const intersectNext = this.references.get('intersectNext')[0]
+        this.adjacents.next.intersect = this.game.cursor.addIntersects({
+            active: false,
+            shapes:
+            [
+                new THREE.Sphere(intersectNext.position, intersectNext.scale.x)
+            ],
+            onClick: () =>
+            {
+                this.nextProject()
+            }
+        })
+
+        // Update
         this.adjacents.update = () =>
         {
             if(this.adjacents.status === 'hiding')
@@ -620,8 +628,8 @@ export class Projects
                 gsap.to(this.adjacents.previous.inner.rotation, { z: 0, duration: 1, delay: 0, ease: 'back.out(2)', overwrite: true })
                 gsap.to(this.adjacents.next.inner.rotation, { z: 0, duration: 1, delay: 0.4, ease: 'back.out(2)', overwrite: true })
 
-                this.adjacents.previous.textWrapper.updateText(this.previousProject.titleSmall)
-                this.adjacents.next.textWrapper.updateText(this.nextProject.titleSmall)
+                this.adjacents.previous.textWrapper.updateText(this.projects.previous.titleSmall)
+                this.adjacents.next.textWrapper.updateText(this.projects.next.titleSmall)
             })
         }
     }
@@ -639,7 +647,7 @@ export class Projects
             this.texts.fontSizeMultiplier * 0.4,
             4,
             0.6,
-            this.density,
+            this.texts.density,
             'center'
         )
         this.texts.createMaterialOnMesh(this.title.textMesh, this.title.textWrapper.texture)
@@ -660,7 +668,7 @@ export class Projects
 
                 gsap.to(this.title.inner.rotation, { x: Math.PI * 2 * rotationDirection, duration: 1, delay: 0, ease: 'back.out(2)', overwrite: true })
 
-                this.title.textWrapper.updateText(this.currentProject.title)
+                this.title.textWrapper.updateText(this.projects.current.title)
             } })
         }
     }
@@ -679,7 +687,7 @@ export class Projects
             this.texts.fontSizeMultiplier * 0.23,
             4,
             0.2,
-            this.density,
+            this.texts.density,
             'center'
         )
         this.texts.createMaterialOnMesh(this.url.textMesh, this.url.textWrapper.texture)
@@ -700,9 +708,9 @@ export class Projects
 
                 gsap.to(this.url.inner.rotation, { x: Math.PI * 2 * rotationDirection, duration: 1, delay: 0, ease: 'back.out(2)', overwrite: true })
 
-                this.url.textWrapper.updateText(this.currentProject.url)
+                this.url.textWrapper.updateText(this.projects.current.url)
 
-                const ratio = this.url.textWrapper.getMeasure().width / this.density
+                const ratio = this.url.textWrapper.getMeasure().width / this.texts.density
                 this.url.panel.scale.x = ratio + 0.2
 
             } })
@@ -710,9 +718,9 @@ export class Projects
 
         this.url.open = () =>
         {
-            if(this.currentProject.url)
+            if(this.projects.current.url)
             {
-                window.open(this.currentProject.url, '_blank')
+                window.open(this.projects.current.url, '_blank')
             }
         }
     }
@@ -763,8 +771,8 @@ export class Projects
                 this.distinctions.status = 'visible'
 
                 let i = 0
-                const positions = this.distinctions.positions[this.currentProject.distinctions.length - 1]
-                for(const name of this.currentProject.distinctions)
+                const positions = this.distinctions.positions[this.projects.current.distinctions.length - 1]
+                for(const name of this.projects.current.distinctions)
                 {
                     const item = this.distinctions.items[name]
 
@@ -855,6 +863,14 @@ export class Projects
         })
     }
 
+    setLabels()
+    {
+        for(const mesh of this.references.get('label'))
+        {
+            mesh.castShadow = false
+        }
+    }
+
     open()
     {
         if(this.state === Projects.STATE_OPEN || this.state === Projects.STATE_OPENING)
@@ -891,6 +907,13 @@ export class Projects
             this.board.timeline.repeat(-1)
             this.board.timeline.resume()
         }
+
+        // Cursor
+        for(const item of this.pagination.items)
+            item.intersect.active = item.visible
+            
+        this.adjacents.next.intersect.active = true
+        this.adjacents.previous.intersect.active = true
     }
 
     close()
@@ -925,49 +948,86 @@ export class Projects
         {
             this.interactiveArea.open()
         })
+
+        // Cursor
+        for(const item of this.pagination.items)
+            item.intersect.active = false
+
+        this.adjacents.next.intersect.active = false
+        this.adjacents.previous.intersect.active = false
     }
 
     previous()
     {
+        if(this.images.index > 0)
+            this.previousImage()
+        else
+            this.previousProject()
+    }
+
+    previousImage()
+    {
         if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
             return
 
-        if(this.imageIndex > 0)
-            this.changeImage(this.imageIndex - 1, Projects.DIRECTION_PREVIOUS)
-        else
-            this.changeProject(this.index - 1, Projects.DIRECTION_PREVIOUS)
+        this.changeImage(this.images.index - 1, Projects.DIRECTION_PREVIOUS)
+
+        this.board.active = false
+    }
+
+    previousProject()
+    {
+        if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
+            return
+
+        this.changeProject(this.projects.index - 1, Projects.DIRECTION_PREVIOUS)
 
         this.board.active = false
     }
 
     next()
     {
+        if(this.images.index < this.projects.current.images.length - 1)
+            this.nextImage()
+        else
+            this.nextProject()
+    }
+
+    nextImage()
+    {
         if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
             return
 
-        if(this.imageIndex < this.currentProject.images.length - 1)
-            this.changeImage(this.imageIndex + 1, Projects.DIRECTION_NEXT)
-        else
-            this.changeProject(this.index + 1, Projects.DIRECTION_NEXT)
+        this.changeImage(this.images.index + 1, Projects.DIRECTION_NEXT)
 
         this.board.active = false
     }
 
-    changeProject(index = 0, direction = Projects.DIRECTION_NEXT)
+    nextProject()
+    {
+        if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
+            return
+
+        this.changeProject(this.projects.index + 1, Projects.DIRECTION_NEXT)
+
+        this.board.active = false
+    }
+
+    changeProject(index = 0, direction = Projects.DIRECTION_NEXT, forcedImageIndex = null)
     {
         // Loop index
         let loopIndex = index
 
-        if(loopIndex > projects.length - 1)
+        if(loopIndex > this.projects.items.length - 1)
             loopIndex = 0
         else if(loopIndex < 0)
-            loopIndex = projects.length - 1
+            loopIndex = this.projects.items.length - 1
 
         // Save
-        this.index = loopIndex
-        this.currentProject = projects[this.index]
-        this.previousProject = projects[(this.index - 1) < 0 ? projects.length - 1 : this.index - 1]
-        this.nextProject = projects[(this.index + 1) % projects.length]
+        this.projects.index = loopIndex
+        this.projects.current = this.projects.items[this.projects.index]
+        this.projects.previous = this.projects.items[(this.projects.index - 1) < 0 ? this.projects.items.length - 1 : this.projects.index - 1]
+        this.projects.next = this.projects.items[(this.projects.index + 1) % this.projects.items.length]
 
         // Update components
         this.attributes.update()
@@ -977,12 +1037,16 @@ export class Projects
         this.distinctions.update()
 
         // Change image
-        this.changeImage(direction === Projects.DIRECTION_NEXT ? 0 : this.currentProject.images.length - 1, direction)
+        const imageIndex = forcedImageIndex ?? (direction === Projects.DIRECTION_NEXT ? 0 : this.projects.current.images.length - 1)
+        this.changeImage(imageIndex, direction)
     }
 
-    changeImage(imageIndex = 0, direction = Projects.DIRECTION_NEXT)
+    changeImage(imageIndex = 0, direction = null)
     {
-        this.imageIndex = imageIndex
+        if(direction === null)
+            direction = imageIndex > this.images.index ? Projects.DIRECTION_NEXT : Projects.DIRECTION_PREVIOUS
+
+        this.images.index = imageIndex
 
         // Update components
         this.images.update(direction)

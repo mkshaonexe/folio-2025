@@ -45,6 +45,10 @@ export class Inputs
         this.pointer.delta = new THREE.Vector2()
         this.pointer.upcoming = new THREE.Vector2()
         this.pointer.isDown = false
+        this.pointer.upcomingDown = false
+        this.pointer.hasMoved = false
+        this.pointer.hasClicked = false
+        this.pointer.hasReleased = false
 
         this.game.domElement.addEventListener('pointermove', (_event) =>
         {
@@ -53,18 +57,33 @@ export class Inputs
 
         this.game.domElement.addEventListener('pointerdown', (_event) =>
         {
-            this.pointer.isDown = true
+            this.pointer.upcomingDown = true
         })
 
         addEventListener('pointerup', (_event) =>
         {
-            this.pointer.isDown = false
+            this.pointer.upcomingDown = false
         })
 
         this.game.ticker.events.on('tick', () =>
         {
             this.pointer.delta.copy(this.pointer.upcoming).sub(this.pointer.current)
             this.pointer.current.copy(this.pointer.upcoming)
+
+            this.pointer.hasMoved = this.pointer.delta.x !== 0 || this.pointer.delta.y !== 0
+
+            this.pointer.hasClicked = false
+            this.pointer.hasReleased = false
+            
+            if(this.pointer.upcomingDown !== this.pointer.isDown)
+            {
+                this.pointer.isDown = this.pointer.upcomingDown
+
+                if(this.pointer.isDown)
+                    this.pointer.hasClicked = true
+                else
+                    this.pointer.hasReleased = true
+            }
         }, 0)
     }
 
