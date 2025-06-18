@@ -799,8 +799,6 @@ export class Lab
                         if(mini.startedLoading)
                             return
 
-                        console.log('load')
-
                         imageElement.src = `lab/images/${project.imageMini}`
 
                         mini.startedLoading = true

@@ -124,6 +124,11 @@ export class Entities
                     collider.shape = 'cuboid'
                     collider.parameters = [ _physical.scale.x * 0.5, _physical.scale.y * 0.5, _physical.scale.z * 0.5 ]
                 }
+                else if(_physical.name.match(/^cylinder/i))
+                {
+                    collider.shape = 'cylinder'
+                    collider.parameters = [ _physical.scale.y * 0.5, _physical.scale.x * 0.5 ]
+                }
 
                 colliders.push(collider)
             }
