@@ -6,13 +6,13 @@ import { remap } from '../utilities/maths.js'
 
 export class Foliage
 {
-    constructor(references, color, xRay = false)
+    constructor(references, color, seeThrough = false)
     {
         this.game = Game.getInstance()
 
         this.references = references
         this.color = color
-        this.xRay = xRay
+        this.seeThrough = seeThrough
 
         this.setGeometry()
         this.setMaterial()
@@ -109,19 +109,19 @@ export class Foliage
         const uniformColor = uniform(this.color)
         this.material.threshold = uniform(0.3)
 
-        this.material.xRayPosition = uniform(vec2())
-        this.material.xRayEdgeMin = uniform(0.25)
-        this.material.xRayEdgeMax = uniform(0.5)
-        this.material.xRayTresholdAmplitude = uniform(0.7)
-        this.material.xRayNoiseFrequency = uniform(0.335)
-        this.material.xRayNoiseStrength = uniform(0.5)
+        this.material.seeThroughPosition = uniform(vec2())
+        this.material.seeThroughEdgeMin = uniform(0.25)
+        this.material.seeThroughEdgeMax = uniform(0.5)
+        this.material.seeThroughTresholdAmplitude = uniform(0.7)
+        this.material.seeThroughNoiseFrequency = uniform(0.335)
+        this.material.seeThroughNoiseStrength = uniform(0.5)
 
         this.material.instance.outputNode = Fn(() =>
         {
             // XRay around the vehicle
-            if(this.xRay)
+            if(this.seeThrough)
             {
-                const toVehicle = screenUV.sub(this.material.xRayPosition).toVar()
+                const toVehicle = screenUV.sub(this.material.seeThroughPosition).toVar()
                 toVehicle.mulAssign(vec2(screenSize.x.div(screenSize.y), 1))
                 const distanceToVehicle = toVehicle.length()
                 
@@ -129,15 +129,15 @@ export class Foliage
                 const noiseUv = screenUV.toVar()
                 noiseUv.x.mulAssign(screenSize.x.div(screenSize.y))
                 noiseUv.addAssign(vec2(range(0, 100).mul(0.1)))
-                const noise = texture(this.game.noises.others, noiseUv.mul(this.material.xRayNoiseFrequency)).r
+                const noise = texture(this.game.noises.others, noiseUv.mul(this.material.seeThroughNoiseFrequency)).r
 
-                distanceToVehicle.addAssign(noise.sub(0.5).mul(this.material.xRayNoiseStrength))
+                distanceToVehicle.addAssign(noise.sub(0.5).mul(this.material.seeThroughNoiseStrength))
 
                 // Visibility threshold
                 const visibilityThreshold = distanceToVehicle.remapClamp(
-                    this.material.xRayEdgeMin,
-                    this.material.xRayEdgeMax,
-                    this.material.threshold.add(this.material.xRayTresholdAmplitude),
+                    this.material.seeThroughEdgeMin,
+                    this.material.seeThroughEdgeMax,
+                    this.material.threshold.add(this.material.seeThroughTresholdAmplitude),
                     this.material.threshold
                 ).toVar()
 
@@ -213,6 +213,6 @@ export class Foliage
 
     update()
     {
-        this.material.xRayPosition.value.copy(this.game.world.visualVehicle.screenPosition)
+        this.material.seeThroughPosition.value.copy(this.game.world.visualVehicle.screenPosition)
     }
 }

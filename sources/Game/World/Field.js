@@ -1,6 +1,5 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import MeshGridMaterial, { MeshGridMaterialLine } from '../Materials/MeshGridMaterial.js'
 import { float, Fn, materialNormal, min, normalWorld, positionLocal, positionWorld, uv, vec3, vec4 } from 'three/tsl'
 
 export class Field
