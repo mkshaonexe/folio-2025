@@ -1206,8 +1206,8 @@ export class Projects
         })
 
         // Inputs filters
-        this.game.inputs.filters.delete(['playing'])
-        this.game.inputs.filters.add(['cinematic'])
+        this.game.inputs.filters.delete('playing')
+        this.game.inputs.filters.add('cinematic')
 
         // View cinematic
         this.game.view.cinematic.start(this.cinematic.position, this.cinematic.target)
@@ -1258,8 +1258,8 @@ export class Projects
         })
 
         // Input filters
-        this.game.inputs.filters.delete(['cinematic'])
-        this.game.inputs.filters.add(['playing'])
+        this.game.inputs.filters.delete('cinematic')
+        this.game.inputs.filters.add('playing')
 
         // View cinematic
         this.game.view.cinematic.end()
