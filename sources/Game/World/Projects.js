@@ -75,6 +75,18 @@ export class Projects
             () =>
             {
                 this.open()
+            },
+            () =>
+            {
+                this.game.inputs.touchButtons.updateItems(['interact'])
+            },
+            () =>
+            {
+                this.game.inputs.touchButtons.updateItems([])
+            },
+            () =>
+            {
+                this.game.inputs.touchButtons.updateItems([])
             }
         )
     }
@@ -104,6 +116,30 @@ export class Projects
             {
                 this.url.open()
             }
+        })
+
+        this.game.inputs.touchButtons.events.on('previous', () =>
+        {
+            if(this.state === Projects.STATE_OPEN)
+                this.previous()
+        })
+
+        this.game.inputs.touchButtons.events.on('next', () =>
+        {
+            if(this.state === Projects.STATE_OPEN)
+                this.next()
+        })
+
+        this.game.inputs.touchButtons.events.on('open', () =>
+        {
+            if(this.state === Projects.STATE_OPEN)
+                this.url.open()
+        })
+
+        this.game.inputs.touchButtons.events.on('close', () =>
+        {
+            if(this.state === Projects.STATE_OPEN)
+                this.close()
         })
     }
 
@@ -1238,6 +1274,9 @@ export class Projects
 
         // Deactivate physical vehicle
         this.game.physicalVehicle.deactivate()
+
+        // Buttons
+        this.game.inputs.touchButtons.updateItems(['previous', 'next', 'open', 'close'])
     }
 
     close()
@@ -1286,6 +1325,9 @@ export class Projects
 
         // Activate physical vehicle
         this.game.physicalVehicle.activate()
+            
+        // Buttons
+        this.game.inputs.touchButtons.updateItems([])
     }
 
     previous()

@@ -4,6 +4,7 @@ import { Gamepad } from './Gamepad.js'
 import { Pointer } from './Pointer.js'
 import Keyboard from './Keyboard.js'
 import { Nipple } from './Nipple.js'
+import { TouchButtons } from './TouchButtons.js'
 import { Wheel } from './Wheel.js'
 
 export class Inputs
@@ -26,6 +27,7 @@ export class Inputs
         this.setPointer()
         this.setWheel()
         this.setNipple()
+        this.setTouchButtons()
 
         this.addActions(actions)
         
@@ -119,6 +121,11 @@ export class Inputs
     setNipple()
     {
         this.nipple = new Nipple(this.game.domElement, this.game.canvasElement)
+    }
+
+    setTouchButtons()
+    {
+        this.touchButtons = new TouchButtons()
     }
 
     addActions(actions)
@@ -260,6 +267,12 @@ export class Inputs
             return
 
         this.mode = mode
+        
+        if(this.mode === Inputs.MODE_TOUCH)
+            this.touchButtons.activate()
+        else
+            this.touchButtons.deactivate()
+
         this.events.trigger('modeChange', [this.mode])
     }
 

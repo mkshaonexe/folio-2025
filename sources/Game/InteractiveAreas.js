@@ -29,19 +29,11 @@ export class InteractiveAreas
 
         this.setGeometries()
         this.setMaterials()
+        this.setInputs()
 
         this.game.ticker.events.on('tick', () =>
         {
             this.update()
-        })
-
-        this.game.inputs.events.on('interact', (action) =>
-        {
-            if(action.active && this.activeItem && this.activeItem.state !== InteractiveAreas.STATE_HIDDEN)
-            {
-                this.activeItem.interact()
-                this.activeItem.callback()
-            }
         })
     }
 
@@ -75,7 +67,26 @@ export class InteractiveAreas
         }
     }
 
-    create(position, text = '', align = InteractiveAreas.ALIGN_LEFT, callback)
+    setInputs()
+    {
+        this.game.inputs.events.on('interact', (action) =>
+        {
+            if(action.active && this.activeItem && this.activeItem.state === InteractiveAreas.STATE_OPEN)
+            {
+                this.activeItem.interact()
+            }
+        })
+
+        this.game.inputs.touchButtons.events.on('interact', () =>
+        {
+            if(this.activeItem && this.activeItem.state === InteractiveAreas.STATE_OPEN)
+            {
+                this.activeItem.interact()
+            }
+        })
+    }
+
+    create(position, text = '', align = InteractiveAreas.ALIGN_LEFT, interactCallback = null, revealCallback = null, concealCallback = null, hideCallback = null)
     {
         const newPosition = position.clone()
         // newPosition.y = 2.25
@@ -243,7 +254,10 @@ export class InteractiveAreas
          */
         const item = {}
         item.position = new THREE.Vector2(position.x, position.z)
-        item.callback = callback
+        item.interactCallback = interactCallback
+        item.revealCallback = revealCallback
+        item.concealCallback = concealCallback
+        item.hideCallback = hideCallback
         item.isIn = false
         item.state = InteractiveAreas.STATE_OPEN
         this.items.push(item)
@@ -262,7 +276,6 @@ export class InteractiveAreas
                 if(item.state !== InteractiveAreas.STATE_HIDDEN)
                 {
                     item.interact()
-                    item.callback()
                 }
             },
             onEnter: () =>
@@ -299,6 +312,10 @@ export class InteractiveAreas
             gsap.to(key.scale, { x: 0, y: 0, z: 0, ease: 'back.in(4.5)', duration: 0.6, overwrite: true })
 
             gsap.to(labelOffset, { value: 1, ease: 'power2.in', duration: 0.6, overwrite: true })
+
+            // Callback
+            if(typeof item.hideCallback === 'function')
+                item.hideCallback()
         }
 
         // Open
@@ -319,6 +336,10 @@ export class InteractiveAreas
             gsap.to(key.scale, { x: 0.25, y: 0.25, z: 0.25, ease: 'elastic.out(1.3,0.8)', duration: 1.5, delay: 0.6, overwrite: true })
 
             gsap.to(labelOffset, { value: 0, ease: 'power2.out', duration: 0.6, delay: 0.2, overwrite: true })
+
+            // Callback
+            if(typeof item.revealCallback === 'function')
+                item.revealCallback()
         }
 
         // Close
@@ -341,6 +362,10 @@ export class InteractiveAreas
             gsap.to(key.scale, { x: 0, y: 0, z: 0, ease: 'power2.in', duration: 0.6, overwrite: true })
 
             gsap.to(labelOffset, { value: align === InteractiveAreas.ALIGN_LEFT ? - 1 : 1, ease: 'power2.in', duration: 0.6, overwrite: true })
+
+            // Callback
+            if(typeof item.concealCallback === 'function')
+                item.concealCallback()
         }
 
         // Interact
@@ -350,6 +375,10 @@ export class InteractiveAreas
             {
                 gsap.to(threshold, { value: 0.5, ease: 'elastic.out(1.3,0.6)', duration: 1.5, overwrite: true })
             } })
+
+            // Callback
+            if(typeof item.interactCallback === 'function')
+                item.interactCallback()
         }
 
 
@@ -374,7 +403,7 @@ export class InteractiveAreas
         this.playerPosition.value.copy(playerPosition2)
 
         let distance = Infinity
-        let inItem = null
+        let activeItem = null
         for(const item of this.items)
         {
             if(!item.state !== InteractiveAreas.STATE_HIDDEN)
@@ -386,7 +415,7 @@ export class InteractiveAreas
                 {
                     if(itemDistance < distance)
                     {
-                        inItem = inItem = item
+                        activeItem = item
                     }
                 }
                 else
@@ -400,19 +429,19 @@ export class InteractiveAreas
             }
         }
 
-        if(inItem)
+        if(activeItem)
         {
-            if(inItem !== this.activeItem && this.activeItem !== null)
+            if(activeItem !== this.activeItem && this.activeItem !== null)
             {
                 this.activeItem.isIn = false
                 this.activeItem.conceal()
             }
-            if(!inItem.isIn)
+            if(!activeItem.isIn)
             {
-                this.activeItem = inItem
+                this.activeItem = activeItem
 
-                inItem.isIn = true
-                inItem.reveal()
+                activeItem.isIn = true
+                activeItem.reveal()
             }
         }
         else

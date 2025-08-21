@@ -252,6 +252,18 @@ export class CookieStand
             () =>
             {
                 this.accept()
+            },
+            () =>
+            {
+                this.game.inputs.touchButtons.updateItems(['interact'])
+            },
+            () =>
+            {
+                this.game.inputs.touchButtons.updateItems([])
+            },
+            () =>
+            {
+                this.game.inputs.touchButtons.updateItems([])
             }
         )
     }
