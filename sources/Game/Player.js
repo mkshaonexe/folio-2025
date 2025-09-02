@@ -107,14 +107,14 @@ export class Player
         this.game.inputs.events.on('suspensions', () =>
         {
             if(this.game.inputs.mode === Inputs.MODE_TOUCH)
-                this.game.nipple.jump()
+                this.game.inputs.nipple.jump()
         })
 
         // Nipple tap jump
         let nippleJumpTimeout = null
-        this.game.nipple.events.on('tap', () =>
+        this.game.inputs.nipple.events.on('tap', () =>
         {
-            this.game.nipple.jump()
+            this.game.inputs.nipple.jump()
 
             for(let i = 0; i < 4; i++)
                 this.suspensions[i] = 'high'
@@ -254,20 +254,20 @@ export class Player
         /**
          * Nipple
          */
-        if(this.game.nipple.active && this.game.nipple.progress > 0)
+        if(this.game.inputs.nipple.active && this.game.inputs.nipple.progress > 0)
         {
             this.game.view.focusPoint.isTracking = true
-            this.accelerating = Math.pow(this.game.nipple.progress, 3)
-            this.boosting = this.game.nipple.progress > 0.999
+            this.accelerating = Math.pow(this.game.inputs.nipple.progress, 3)
+            this.boosting = this.game.inputs.nipple.progress > 0.999
 
-            const angleDeltaAbs = Math.abs(this.game.nipple.smallestAngle)
-            const angleDeltaAbsNormalized = angleDeltaAbs / ((Math.PI * 2 - this.game.nipple.forwardAmplitude) / 2)
-            const angleDeltaSign = Math.sign(this.game.nipple.smallestAngle)
+            const angleDeltaAbs = Math.abs(this.game.inputs.nipple.smallestAngle)
+            const angleDeltaAbsNormalized = angleDeltaAbs / ((Math.PI * 2 - this.game.inputs.nipple.forwardAmplitude) / 2)
+            const angleDeltaSign = Math.sign(this.game.inputs.nipple.smallestAngle)
             const steering = - Math.min(angleDeltaAbsNormalized, 1) * angleDeltaSign
 
             this.steering = steering
 
-            if(!this.game.nipple.forward)
+            if(!this.game.inputs.nipple.forward)
             {
                 this.accelerating *= -1
                 this.steering *= -1
@@ -300,6 +300,6 @@ export class Player
 
         // Inputs touch joystick
         this.rotationY = Math.atan2(this.game.physicalVehicle.forward.z, this.game.physicalVehicle.forward.x)
-        this.game.nipple.setCoordinates(this.position.x, this.position.y, this.position.z, this.rotationY)
+        this.game.inputs.nipple.setCoordinates(this.position.x, this.position.y, this.position.z, this.rotationY)
     }
 }

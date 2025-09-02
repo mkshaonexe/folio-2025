@@ -2,13 +2,11 @@ import * as THREE from 'three/webgpu'
 import { Pane } from 'tweakpane'
 import * as EssentialsPlugin from '@tweakpane/plugin-essentials'
 import * as CamerakitPlugin from '@tweakpane/plugin-camerakit'
-import { Game } from './Game.js'
 
 export class Debug
 {
     constructor()
     {
-        this.game = Game.getInstance()
         
         this.active = location.hash.indexOf('debug') !== -1
 
@@ -18,13 +16,9 @@ export class Debug
             this.panel.registerPlugin(EssentialsPlugin)
             this.panel.registerPlugin(CamerakitPlugin)
 
-            this.game.inputs.addActions([
-                { name: 'debugToggle', categories: [], keys: [ 'Keyboard.KeyH' ] }
-            ])
-
-            this.game.inputs.events.on('debugToggle', (action) =>
+            addEventListener('keydown', (event) =>
             {
-                if(action.active)
+                if(event.code === 'KeyH')
                     this.panel.hidden = !this.panel.hidden
             })
         }

@@ -1,11 +1,11 @@
 import { abs, atan, float, Fn, If, max, min, PI, positionGeometry, positionWorld, uniform, vec2, vec3, vec4 } from 'three/tsl'
 import * as THREE from 'three/webgpu'
-import { Game } from './Game.js'
+import { Game } from '../Game.js'
 import { clamp } from 'three/src/math/MathUtils.js'
-import { smallestAngle } from './utilities/maths.js'
+import { smallestAngle } from '../utilities/maths.js'
 import gsap from 'gsap'
-import { Events } from './Events.js'
-import { Inputs } from './Inputs/Inputs.js'
+import { Events } from '../Events.js'
+import { Inputs } from './Inputs.js'
 
 export class Nipple
 {
@@ -24,14 +24,9 @@ export class Nipple
         this.smallestAngle = 0
         this.targetAngle = 0
         this.forward = true
+        this.inRadiusLow = false
 
         this.setMeshes()
-        this.setPointerTesting()
-
-        this.game.ticker.events.on('tick', () =>
-        {
-            this.update()
-        }, 1)
     }
 
     setMeshes()
@@ -132,74 +127,64 @@ export class Nipple
         this.mesh.rotation.y = - angle
     }
 
-    setPointerTesting()
+    updateFromPointer(x, y, action)
     {
-        let isIn = false
-        
-        this.game.inputs.addActions([
-            { name: 'rayPointer', categories: [ 'playing' ], keys: [ 'Pointer.any' ] },
-        ])
-
-        this.game.inputs.events.on('rayPointer', (action) =>
+        // Start
+        if(action === 'start')
         {
-            if(this.game.inputs.mode !== Inputs.MODE_TOUCH)
-                return
-                
-            // Start
-            if(action.trigger === 'start')
-            {
-                this.active = true
-            }
+            this.active = true
+        }
 
-            // End
-            else if(action.trigger === 'end')
-            {
-                this.active = false
+        // End
+        else if(action === 'end')
+        {
+            this.active = false
 
-                if(isIn)
-                    this.events.trigger('tap')
-            }
+            if(this.inRadiusLow)
+                this.events.trigger('tap')
 
-            // Change
-            if(action.trigger === 'start' || action.trigger === 'change')
+            this.inRadiusLow = false
+        }
+
+        // Change
+        if(action === 'start' || action === 'change')
+        {
+            if(this.active)
             {
-                if(this.active)
+                // Intersect
+                const ndcPointer = new THREE.Vector2(
+                    (x / this.game.viewport.width) * 2 - 1,
+                    - ((y / this.game.viewport.height) * 2 - 1),
+                )
+                this.raycaster.setFromCamera(ndcPointer, this.game.view.defaultCamera)
+
+                const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), - this.position.y)
+                const intersect = new THREE.Vector3()
+                this.raycaster.ray.intersectPlane(plane, intersect)
+
+                // Distance
+                const distance = this.position.distanceTo(intersect)
+
+                // Target angle
+                this.targetAngle = Math.atan2(intersect.z - this.position.z, intersect.x - this.position.x)
+
+                // Progress
+                this.progress = clamp((distance - this.progressRadiusLow) / (this.progressRadiusHigh - this.progressRadiusLow), 0, 1)
+                this.uniforms.progress.value = this.progress
+
+                // Tap
+                if(action === 'start')
                 {
-                    // Intersect
-                    const ndcPointer = new THREE.Vector2(
-                        (this.game.inputs.pointer.current.x / this.game.viewport.width) * 2 - 1,
-                        - ((this.game.inputs.pointer.current.y / this.game.viewport.height) * 2 - 1),
-                    )
-                    this.raycaster.setFromCamera(ndcPointer, this.game.view.defaultCamera)
-
-                    const plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), - this.position.y)
-                    const intersect = new THREE.Vector3()
-                    this.raycaster.ray.intersectPlane(plane, intersect)
-
-                    // Distance
-                    const distance = this.position.distanceTo(intersect)
-
-                    // Target angle
-                    this.targetAngle = Math.atan2(intersect.z - this.position.z, intersect.x - this.position.x)
-
-                    // Progress
-                    this.progress = clamp((distance - this.progressRadiusLow) / (this.progressRadiusHigh - this.progressRadiusLow), 0, 1)
-                    this.uniforms.progress.value = this.progress
-
-                    // Tap
-                    if(action.trigger === 'start')
-                    {
-                        if(this.progress === 0)
-                            isIn = true
-                    }
-                    else if(action.trigger === 'change')
-                    {
-                        if(this.progress > 0)
-                            isIn = false
-                    }
+                    if(this.progress === 0)
+                        this.inRadiusLow = true
+                }
+                else if(action === 'change')
+                {
+                    if(this.progress > 0)
+                        this.inRadiusLow = false
                 }
             }
-        })
+        }
     }
 
     jump()
@@ -277,7 +262,7 @@ export class Nipple
 
         else
         {
-            // Group visiblity
+            // Hide
             this.group.visible = false
         }
     }

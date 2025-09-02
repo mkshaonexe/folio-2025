@@ -5,6 +5,7 @@ import { Pointer } from './Pointer.js'
 import Keyboard from './Keyboard.js'
 import { InteractiveButtons } from './InteractiveButtons.js'
 import { Wheel } from './Wheel.js'
+import { Nipple } from './Nipple.js'
 
 export class Inputs
 {
@@ -26,6 +27,7 @@ export class Inputs
         this.setPointer()
         this.setWheel()
         this.setInteractiveButtons()
+        this.setNipple()
 
         this.addActions(actions)
         
@@ -119,6 +121,22 @@ export class Inputs
     setInteractiveButtons()
     {
         this.interactiveButtons = new InteractiveButtons()
+    }
+
+    setNipple()
+    {
+        this.nipple = new Nipple()
+        this.addActions([
+            { name: 'rayPointer', categories: [ 'playing' ], keys: [ 'Pointer.any' ] },
+        ])
+
+        this.events.on('rayPointer', (action) =>
+        {
+            if(this.mode !== Inputs.MODE_TOUCH)
+                return
+
+            this.nipple.updateFromPointer(this.pointer.current.x, this.pointer.current.y, action.trigger)
+        })
     }
 
     addActions(actions)
@@ -273,5 +291,6 @@ export class Inputs
     {
         this.pointer.update()
         this.gamepad.update()
+        this.nipple.update()
     }
 }
