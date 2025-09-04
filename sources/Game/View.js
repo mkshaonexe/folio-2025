@@ -182,8 +182,12 @@ export class View
             const savedPosition = this.defaultCamera.position.clone()
             const savedQuaternion = this.defaultCamera.quaternion.clone()
 
-            // Reset
-            this.defaultCamera.position.set(0, 0, 0).add(this.spherical.offset)
+            // Reset with max radius
+            const radiusMax = this.spherical.radius.edges.max + this.ratioOverflow * this.spherical.radius.nonIdealRatioOffset
+            const offset = new THREE.Vector3()
+            offset.setFromSphericalCoords(radiusMax, this.spherical.phi, this.spherical.theta)
+
+            this.defaultCamera.position.set(0, 0, 0).add(offset)
             this.defaultCamera.lookAt(new THREE.Vector3())
             this.defaultCamera.updateProjectionMatrix()
             this.defaultCamera.updateWorldMatrix()
