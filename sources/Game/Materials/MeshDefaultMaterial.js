@@ -83,7 +83,7 @@ export class MeshDefaultMaterial extends THREE.MeshLambertNodeMaterial
             }
 
             // Light
-            outputColor.assign(outputColor.mul(this.game.lighting.colorUniform.mul(this.game.lighting.intensityUniform)))
+            outputColor.mulAssign(this.game.lighting.colorUniform.mul(this.game.lighting.intensityUniform))
 
             // Core shadow
             let coreShadowMix = float(0)

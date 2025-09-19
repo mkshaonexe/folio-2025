@@ -336,7 +336,7 @@ export class Lightnings
         gsap.delayedCall(this.anticipationParticles.duration, () =>
         {
             // Game explosion
-            this.game.explosions.explode(coordinates)
+            this.game.explosions.explode(coordinates, 7, 4, true)
             
             // Arc
             disposables.push(this.arc.create(coordinates))

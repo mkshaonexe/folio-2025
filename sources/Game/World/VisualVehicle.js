@@ -5,6 +5,7 @@ import { Trails } from '../Trails.js'
 import { remapClamp } from '../utilities/maths.js'
 import { mix, uniform } from 'three/tsl'
 import { clamp } from 'three/src/math/MathUtils.js'
+import gsap from 'gsap'
 
 export class VisualVehicle
 {
@@ -117,7 +118,6 @@ export class VisualVehicle
     setBlinkers()
     {
         let running = false
-        let interval = null
         let on = false
 
         const start = () =>
@@ -131,7 +131,7 @@ export class VisualVehicle
             this.parts.blinkerLeft.visible = this.game.inputs.actions.get('left').active ? on : false
             this.parts.blinkerRight.visible = this.game.inputs.actions.get('right').active ? on : false
 
-            interval = setInterval(blink, 400)
+            gsap.delayedCall(0.8, blink)
         }
 
         const blink = () =>
@@ -143,8 +143,11 @@ export class VisualVehicle
 
             if(!this.game.inputs.actions.get('left').active && !this.game.inputs.actions.get('right').active && !on)
             {
-                clearInterval(interval)
                 running = false
+            }
+            else
+            {
+                gsap.delayedCall(0.8, blink)
             }
         }
 

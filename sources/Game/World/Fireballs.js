@@ -16,25 +16,12 @@ export class Fireballs
         this.emissiveColorB = uniform(color('orange'))
         this.emissiveStrength = uniform(8)
 
-        // const create = () =>
-        // {
-        //     this.create(
-        //         new THREE.Vector3(
-        //             3 + (Math.random() - 0.5) * 15,
-        //             0 + (Math.random() - 0.5),
-        //             - 1 + (Math.random() - 0.5) * 15
-        //         ),
-        //         2 + Math.random() * 3
-        //     )
-        // }
-        // setInterval(create, 1000)
-
         // Debug
         if(this.game.debug.active)
         {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '🔥 Fireballs',
-                expanded: true,
+                expanded: false,
             })
 
             this.game.debug.addThreeColorBinding(this.debugPanel, this.emissiveColorA.value, 'emissiveColorA')

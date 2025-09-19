@@ -12,7 +12,7 @@ export class Explosions
         this.events = new Events()
     }
 
-    explode(coordinates, radius = 7, strength = 4, vehicleOnly = false)
+    explode(coordinates, radius = 7, strength = 4, vehicleOnly = false, bulletTimeStrengthThreshold = 3)
     {
         // View roll
         const distance = this.game.view.focusPoint.position.distanceTo(coordinates)
@@ -37,7 +37,10 @@ export class Explosions
             // impulse.x = 0.25
             // impulse.z = 0.25
             impulse.normalize()
-            impulse.setLength(fadedStrength * physicalObject.body.mass() * strength)
+
+            const finalStrength = fadedStrength * strength
+            
+            impulse.setLength(finalStrength * physicalObject.body.mass())
 
             if(fadedStrength > 0)
             {
@@ -47,6 +50,15 @@ export class Explosions
                 {
                     physicalObject.body.applyImpulseAtPoint(impulse, point, true)
                 })
+
+                // Is vehicle
+                if(physicalObject === this.game.physicalVehicle.chassis.physical)
+                {
+                    if(finalStrength > bulletTimeStrengthThreshold)
+                    {
+                        game.time.bulletTime.activate()
+                    }
+                }
             }
         }
 

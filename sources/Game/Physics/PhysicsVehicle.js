@@ -12,7 +12,7 @@ export class PhysicsVehicle
         this.events = new Events()
 
         this.steeringAmplitude = 0.5
-        this.engineForceAmplitude = 7
+        this.engineForceAmplitude = 300
         this.boostMultiplier = 2
         this.maxSpeed = 5
         this.brakeAmplitude = 35
@@ -378,7 +378,7 @@ export class PhysicsVehicle
         // Engine force
         const maxSpeed = this.maxSpeed + (this.maxSpeed * (this.boostMultiplier - 1) * this.game.player.boosting)
         const overflowSpeed = Math.max(0, this.absoluteSpeed - maxSpeed)
-        let engineForce = (this.game.player.accelerating * (1 + this.game.player.boosting * this.boostMultiplier)) * this.engineForceAmplitude / (1 + overflowSpeed)
+        let engineForce = (this.game.player.accelerating * (1 + this.game.player.boosting * this.boostMultiplier)) * this.engineForceAmplitude / (1 + overflowSpeed) * this.game.ticker.deltaScaled
 
         // Brake
         let brake = this.game.player.braking
