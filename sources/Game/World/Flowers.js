@@ -19,7 +19,7 @@ export class Flowers
         {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '🌸 Flowers',
-                expanded: false,
+                expanded: true,
             })
         }
 
@@ -36,10 +36,10 @@ export class Flowers
     {
         this.colors = {}
         this.colors.presets = [
-            new THREE.Color('#ffffff'),
-            new THREE.Color('#8900ff'),
-            new THREE.Color('#a4ffb9'),
-            new THREE.Color('#ff3e00'),
+            new THREE.Color('#ff5f28'),
+            new THREE.Color('#f272b4'),
+            new THREE.Color('#fff778'),
+            new THREE.Color('#b6e22c'),
         ]
 
         this.colors.array = []
@@ -141,7 +141,7 @@ export class Flowers
             position.y *= 0.5
             const randomUpAngle = rng() * Math.PI * 2
             
-            const matrix = new THREE.Matrix4().lookAt(new THREE.Vector3(), direction, new THREE.Vector3(Math.sin(randomUpAngle), Math.cos(randomUpAngle), 0))
+            const matrix = new THREE.Matrix4().lookAt(direction, new THREE.Vector3(), new THREE.Vector3(Math.sin(randomUpAngle), Math.cos(randomUpAngle), 0))
             matrix.setPosition(position)
             
             plane.applyMatrix4(matrix)
