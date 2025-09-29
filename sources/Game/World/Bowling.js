@@ -3,7 +3,7 @@ import { Game } from '../Game.js'
 import { InteractivePoints } from '../InteractivePoints.js'
 import { clamp, lerp } from '../utilities/maths.js'
 import gsap from 'gsap'
-import { color, float, Fn, mix, positionGeometry, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
+import { color, float, Fn, max, min, mix, positionGeometry, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 import { InstancedGroup } from '../InstancedGroup.js'
 
 export class Bowling
@@ -51,8 +51,8 @@ export class Bowling
 
             },
             {
-                friction: 0.5,
-                restitution: 0.1,
+                friction: 0.8,
+                restitution: 0.3,
             }
         )
 
@@ -64,7 +64,6 @@ export class Bowling
             pin.isDown = false
             pin.isSleeping = true
             pin.group = reference
-
 
             // Object with physics linked to reference
             const object = this.game.objects.add(
@@ -86,7 +85,7 @@ export class Bowling
                     waterGravityMultiplier: - 1,
                     collidersOverwrite:
                     {
-                        mass: 0.06
+                        mass: 0.05
                     }
                 },
             )
@@ -286,6 +285,22 @@ export class Bowling
 
         material.outputNode = Fn(() =>
         {
+            // const baseUv = vec2(
+            //     uv().x.mul(96),
+            //     uv().y.mul(8)
+            // ).toVar()
+            
+            // const gridUv = baseUv.fract()
+
+            // const noiseUv = baseUv.floor().div(128)
+            // const noise = texture(this.game.noises.others, noiseUv).g.add(this.game.ticker.elapsedScaledUniform.mul(0.1)).fract()
+            
+            // const discardUv = gridUv.sub(0.5).abs()
+            // max(discardUv.x, discardUv.y).greaterThan(0.4).discard()
+
+            // return vec4(noise, noise, noise, 1)
+
+            // Base UV
             const baseUv = vec2(uv().x, uv().y.oneMinus()).toVar()
 
             // Noise
@@ -354,6 +369,8 @@ export class Bowling
                 }
             )
         }
+
+        // this.bumpers.toggle()
 
         // Interactive point
         this.game.interactivePoints.create(

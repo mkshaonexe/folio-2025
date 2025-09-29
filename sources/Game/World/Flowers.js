@@ -23,7 +23,6 @@ export class Flowers
             })
         }
 
-        this.setColors()
         // this.setOne()
         this.setClusters()
         
@@ -32,38 +31,6 @@ export class Flowers
         this.setInstancedMesh()
     }
 
-    setColors()
-    {
-        this.colors = {}
-        this.colors.presets = [
-            new THREE.Color('#ff5f28'),
-            new THREE.Color('#f272b4'),
-            new THREE.Color('#fff778'),
-            new THREE.Color('#b6e22c'),
-        ]
-
-        this.colors.array = []
-
-        for(const _preset of this.colors.presets)
-        {
-            if(this.game.debug.active)
-                this.game.debug.addThreeColorBinding(this.debugPanel, _preset, 'color').on('change', () => { this.colors.updateArray() })
-        }
-
-        this.colors.updateArray = () =>
-        {
-            let i = 0
-            for(const _preset of this.colors.presets)
-            {
-                _preset.toArray(this.colors.array, i * 3)
-                i++
-            }
-        }
-
-        this.colors.updateArray()
-
-        this.colors.uniform = uniformArray(this.colors.array)
-    }
 
     setOne()
     {
@@ -81,14 +48,10 @@ export class Flowers
     {
         this.transformMatrices = []
 
-        this.colorIndices = []
-
         let i = 0
         for(const reference of this.game.resources.flowersReferencesModel.scene.children)
         {
             const clusterPosition = reference.position
-
-            const colorIndex = i % this.colors.presets.length
 
             const clusterCount = 3 + Math.floor(rng() * 8)
             // const clusterCount = 1
@@ -111,9 +74,6 @@ export class Flowers
                 object.updateMatrix()
 
                 this.transformMatrices.push(object.matrix)
-
-                // Color index
-                this.colorIndices.push(colorIndex)
             }
             i++
         }
@@ -124,34 +84,26 @@ export class Flowers
         const count = 8
         const planes = []
 
-        const colorMixerArray = new Float32Array(count * 4)
-
         for(let i = 0; i < count; i++)
         {
-            const plane = new THREE.PlaneGeometry(0.2, 0.2)
+            const plane = new THREE.PlaneGeometry(0.08, 0.08)
 
             // Position
             const spherical = new THREE.Spherical(
                 1,
-                Math.PI * 0.5 * rng(),
+                Math.PI * 0.2 * rng(),
                 Math.PI * 2 * rng()
             )
             const direction = new THREE.Vector3().setFromSpherical(spherical)
-            const position = direction.clone().setLength(1 - Math.pow(rng(), 2))
-            position.y *= 0.5
-            const randomUpAngle = rng() * Math.PI * 2
+            const position = direction.clone().setLength(1 + (rng() - 0.5) * 0.5)
+            position.y -= 0.75
             
-            const matrix = new THREE.Matrix4().lookAt(direction, new THREE.Vector3(), new THREE.Vector3(Math.sin(randomUpAngle), Math.cos(randomUpAngle), 0))
+            const matrix = new THREE.Matrix4()
+            matrix.lookAt(direction, new THREE.Vector3(), new THREE.Vector3(0, 1, 0))
             matrix.setPosition(position)
+            matrix.scale(new THREE.Vector3(1, 1, 1).setScalar(1 + (Math.random() - 0.5)))
             
             plane.applyMatrix4(matrix)
-
-            // Color mixer
-            const colorMixer = rng()
-            colorMixerArray[i * 4 + 0] = colorMixer
-            colorMixerArray[i * 4 + 1] = colorMixer
-            colorMixerArray[i * 4 + 2] = colorMixer
-            colorMixerArray[i * 4 + 3] = colorMixer
 
             // Save
             planes.push(plane)
@@ -162,32 +114,16 @@ export class Flowers
 
         // Remove unsused attributes
         this.geometry.deleteAttribute('uv')
-
-        // Add attribute
-        this.geometry.setAttribute('colorMixer', new THREE.Float32BufferAttribute(colorMixerArray, 1))
     
     }
 
     setMaterial()
     {
-        const colorNode = Fn(() =>
-        {
-            const colorIndex = instancedBufferAttribute(this.instanceColorIndex, 'float', 1)
-
-            const baseColor = vec3(
-                this.colors.uniform.element(colorIndex.mul(3).add(0)),
-                this.colors.uniform.element(colorIndex.mul(3).add(1)),
-                this.colors.uniform.element(colorIndex.mul(3).add(2))
-            )
-            const colorMixer = attribute('colorMixer')
-            const mixedColor = mix(baseColor, this.game.terrain.grassColorUniform, colorMixer)
-
-            return mixedColor
-        })()
+        const baseColor = uniform(color('#ffffff'))
 
         this.material = new MeshDefaultMaterial({
             side: THREE.DoubleSide,
-            colorNode: colorNode,
+            colorNode: baseColor,
             hasWater: false
         })
     
@@ -205,12 +141,18 @@ export class Flowers
 
             return positionLocal.add(vec3(wind.x, 0, wind.y).mul(multiplier))
         })()
+
+        // Debug
+        if(this.game.debug.active)
+        {
+            this.game.debug.addThreeColorBinding(this.debugPanel, baseColor.value, 'baseColor')
+        }
     }
 
     setInstancedMesh()
     {
         this.mesh = new THREE.Mesh(this.geometry, this.material)
-        this.mesh.position.y = - 0.25
+        // this.mesh.position.y = - 0.5
         this.mesh.castShadow = true
         this.mesh.receiveShadow = true
         this.mesh.count = this.transformMatrices.length
