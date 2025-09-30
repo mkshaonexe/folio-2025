@@ -276,74 +276,10 @@ export class Bowling
         this.bumpers.object.physical.body.collider(1).setRestitution(1)
         this.bumpers.object.physical.body.collider(1).setFriction(0)
 
-        // Material
-        const material = new THREE.MeshBasicNodeMaterial({ side: THREE.DoubleSide, transparent: true, depthTest: true, depthWrite: false })
-
-        const baseColor = uniform(color('#db4dff'))
-        const emissiveStrength = uniform(6.7)
-        const attenuation = uniform(0)
-
-        material.outputNode = Fn(() =>
-        {
-            // const baseUv = vec2(
-            //     uv().x.mul(96),
-            //     uv().y.mul(8)
-            // ).toVar()
-            
-            // const gridUv = baseUv.fract()
-
-            // const noiseUv = baseUv.floor().div(128)
-            // const noise = texture(this.game.noises.others, noiseUv).g.add(this.game.ticker.elapsedScaledUniform.mul(0.1)).fract()
-            
-            // const discardUv = gridUv.sub(0.5).abs()
-            // max(discardUv.x, discardUv.y).greaterThan(0.4).discard()
-
-            // return vec4(noise, noise, noise, 1)
-
-            // Base UV
-            const baseUv = vec2(uv().x, uv().y.oneMinus()).toVar()
-
-            // Noise
-            const noiseUv = vec2(
-                baseUv.x.mul(4).add(baseUv.y.mul(1)),
-                baseUv.y.oneMinus().mul(1).sub(this.game.ticker.elapsedScaledUniform.mul(-0.1))
-            )
-
-            const noise = texture(this.game.noises.others, noiseUv).r
-            noise.mulAssign(baseUv.y)
-
-            const sideAttenuation = baseUv.x.sub(0.5).abs().mul(2).oneMinus().mul(10).min(1).oneMinus()
-            noise.addAssign(attenuation.mul(1))
-            noise.addAssign(sideAttenuation.mul(0.15))
-
-            // Emissive
-            const emissiveColor = baseColor.mul(emissiveStrength)
-
-            // Goo
-            const gooColor = this.game.fog.strength.mix(vec3(0), this.game.fog.color) // Fog
-
-            // Mix
-            const gooMask = step(0.8, noise)
-            const finalColor = mix(emissiveColor, gooColor, gooMask)
-
-            // Discard
-            noise.greaterThan(0.9).discard()
-            
-            return vec4(finalColor, 1)
-        })()
-
-        // Mesh
-        this.bumpers.mesh.material = material
-        this.bumpers.mesh.visible = false
-        this.bumpers.mesh.castShadow = false
-
         // Toggle
         this.bumpers.toggle = () =>
         {
             this.bumpers.active = !this.bumpers.active
-
-            if(this.bumpers.active)
-                this.bumpers.mesh.visible = true
 
             const progress = this.bumpers.active ? 1 : 0
             gsap.to(
@@ -354,18 +290,14 @@ export class Bowling
                     overwrite: true,
                     onUpdate: () =>
                     {
+                        console.log(- (1 - this.bumpers.progress) * this.bumpers.height)
                         this.bumpers.object.physical.body.setNextKinematicTranslation({
                             x: this.bumpers.mesh.position.x,
                             y: - (1 - this.bumpers.progress) * this.bumpers.height,
                             z: this.bumpers.mesh.position.z,
                         })
-                        attenuation.value = lerp(1, 0.75, this.bumpers.progress)
+                        this.bumpers.object.needsUpdate = true
                     },
-                    onComplete: () =>
-                    {
-                        if(!this.bumpers.active)
-                            this.bumpers.mesh.visible = false
-                    }
                 }
             )
         }
@@ -394,14 +326,6 @@ export class Bowling
                 this.game.inputs.interactiveButtons.removeItems(['interact'])
             }
         )
-
-        // Debug
-        if(this.game.debug.active)
-        {
-            this.debugPanel.addBinding(attenuation, 'value', { label: 'attenuation', min: 0, max: 1, step: 0.001 })
-            this.debugPanel.addBinding(emissiveStrength, 'value', { label: 'emissiveStrength', min: 0, max: 20, step: 0.001 })
-            this.game.debug.addThreeColorBinding(this.debugPanel, baseColor.value, 'baseColor')
-        }
     }
 
     update()
