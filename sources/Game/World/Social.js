@@ -25,6 +25,11 @@ export class Social
         this.setLinks()
         this.setFans()
         this.setOnlyFans()
+
+        this.game.ticker.events.on('tick', () =>
+        {
+            this.update()
+        })
     }
 
     setLinks()
@@ -71,15 +76,10 @@ export class Social
         const baseFan = this.references.get('fan')[0]
         baseFan.removeFromParent()
 
-        baseFan.traverse((child) =>
-        {
-            if(child.isMesh)
-                child.frustumCulled = false
-        })
-
         this.fans = {}
         this.fans.spawnerPosition = this.references.get('onlyFans')[0].position
         this.fans.count = 30
+        this.fans.visibleCount = 0
         this.fans.currentIndex = 0
         this.fans.mass = 0.02
         this.fans.objects = []
@@ -120,7 +120,7 @@ export class Social
             this.fans.objects.push(object)
         }
 
-        const instancedGroup = new InstancedGroup(references, baseFan, true)
+        this.fans.instancedGroup = new InstancedGroup(references, baseFan, true)
 
         this.fans.pop = () =>
         {
@@ -146,6 +146,8 @@ export class Social
             })
 
             this.fans.currentIndex = (this.fans.currentIndex + 1) % this.fans.count
+
+            this.fans.visibleCount = Math.min(this.fans.visibleCount + 1, this.fans.count)
         }
     }
 
@@ -172,5 +174,18 @@ export class Social
                 this.game.inputs.interactiveButtons.removeItems(['interact'])
             }
         )
+    }
+
+    update()
+    {
+        if(this.fans.visibleCount)
+        {
+            let allFansSleeping = true
+            for(const fan of this.fans.objects)
+                allFansSleeping = allFansSleeping && fan.physical.body.isSleeping()
+
+            if(!allFansSleeping)
+                this.fans.instancedGroup.updateBoundings()
+        }
     }
 }

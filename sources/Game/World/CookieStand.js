@@ -156,15 +156,10 @@ export class CookieStand
         const baseCookie = this.references.get('cookie')[0]
         baseCookie.removeFromParent()
 
-        baseCookie.traverse((child) =>
-        {
-            if(child.isMesh)
-                child.frustumCulled = false
-        })
-
         this.cookies = {}
         this.cookies.spawnerPosition = this.references.get('spawner')[0].position
         this.cookies.count = 20
+        this.cookies.visibleCount = 0
         this.cookies.realCount = this.cookies.count + 2
         this.cookies.currentIndex = 0
         this.cookies.mass = 0.02
@@ -216,7 +211,7 @@ export class CookieStand
             this.cookies.objects.push(object)
         }
 
-        const instancedGroup = new InstancedGroup(references, baseCookie, true)
+        this.cookies.instancedGroup = new InstancedGroup(references, baseCookie, true)
     }
 
     setActualCookies()
@@ -434,6 +429,8 @@ export class CookieStand
 
         this.cookies.currentIndex = (this.cookies.currentIndex + 1) % this.cookies.count
 
+        this.cookies.visibleCount = Math.min(this.cookies.visibleCount + 1, this.cookies.count)
+
         // Oven heat
         this.ovenHeat.scale.z = 2
         gsap.to(this.ovenHeat.scale, { z: 1, overwrite: true, duration: 2, delay: 0.2, ease: 'power1.inOut' })
@@ -447,9 +444,23 @@ export class CookieStand
 
     update()
     {
+        // Time
         const timeScale = (Math.sin(this.game.ticker.elapsedScaled) * 0.3 + 0.5) * 0.3
         this.localTime.value += this.game.ticker.deltaScaled * timeScale
 
+        // Blower
         this.blower.scale.y = Math.sin(this.game.ticker.elapsedScaled + Math.PI) * 0.25 + 0.75
+
+        // Cookies
+
+        if(this.cookies.visibleCount)
+        {
+            let allCookiesSleeping = true
+            for(const fan of this.cookies.objects)
+                allCookiesSleeping = allCookiesSleeping && fan.physical.body.isSleeping()
+
+            if(!allCookiesSleeping)
+                this.cookies.instancedGroup.updateBoundings()
+        }
     }
 }

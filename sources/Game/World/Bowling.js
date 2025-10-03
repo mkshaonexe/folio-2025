@@ -117,8 +117,6 @@ export class Bowling
 
         this.instancedGroup = new InstancedGroup(references, basePin, true)
 
-        
-
         // Reset
         this.pins.reset = () =>
         {
