@@ -2,7 +2,7 @@ import * as THREE from 'three/webgpu'
 import { Game } from './Game.js'
 
 
-import { If, vec2, vec3, abs, sqrt, vec4, mod, Fn, dot, sin, fract, length, mul, min, float, uv, floor, ceil, smoothstep, int, mix, Loop } from 'three/tsl';
+import { If, vec2, vec3, abs, sqrt, vec4, mod, Fn, dot, sin, fract, length, mul, min, float, uv, floor, ceil, smoothstep, int, mix, Loop, texture } from 'three/tsl';
 
 const hash = /*#__PURE__*/ Fn( ( [ p_immutable ] ) => {
 
@@ -143,23 +143,34 @@ export class Noises
 		this.resolution = 128
 
 		this.setVoronoi()
-		this.setOthers()
+		this.setPerlin()
+		this.setHash()
 
-        // // Tests
-        // const testMesh1 = new THREE.Mesh(
+        // // Helpers
+        // const helperMesh1 = new THREE.Mesh(
         //     new THREE.BoxGeometry(5, 5, 5),
-        //     new THREE.MeshBasicMaterial({ map: this.others })
+        //     new THREE.MeshBasicNodeMaterial({ outputNode: vec4(texture(this.voronoi).rgb, 1) })
         // )
-        // testMesh1.position.y = 5
+        // helperMesh1.position.x = 0
+        // helperMesh1.position.y = 5
+        // this.game.scene.add(helperMesh1)
 
-        // const testMesh2 = new THREE.Mesh(
+        // const helperMesh2 = new THREE.Mesh(
         //     new THREE.BoxGeometry(5, 5, 5),
-        //     new THREE.MeshBasicMaterial({ map: this.others })
+        //     new THREE.MeshBasicNodeMaterial({ outputNode: vec4(texture(this.perlin).r, 0, 0, 1) })
         // )
-        // testMesh2.position.x = 5
-        // testMesh2.position.y = 5
+        // helperMesh2.position.x = 5
+        // helperMesh2.position.y = 5
+        // this.game.scene.add(helperMesh2)
 
-        // this.game.scene.add(testMesh1, testMesh2)
+        // const helperMesh3 = new THREE.Mesh(
+        //     new THREE.BoxGeometry(5, 5, 5),
+        //     new THREE.MeshBasicNodeMaterial({ outputNode: vec4(texture(this.hash).r, 0, 0, 1) })
+        // )
+        // helperMesh3.position.x = 10
+        // helperMesh3.position.y = 5
+
+        // this.game.scene.add(helperMesh3)
     }
 
 	setVoronoi()
@@ -198,7 +209,7 @@ export class Noises
 		THREE.RendererUtils.restoreRendererState(this.game.rendering.renderer, rendererState)
 	}
 
-	setOthers()
+	setPerlin()
 	{
 		// Render target
         const renderTarget = new THREE.RenderTarget(
@@ -206,12 +217,13 @@ export class Noises
             this.resolution,
             {
                 depthBuffer: false,
+				format: THREE.RedFormat,
                 type: THREE.HalfFloatType
             }
         )
-        this.others = renderTarget.texture
-        this.others.wrapS = THREE.RepeatWrapping
-        this.others.wrapT = THREE.RepeatWrapping
+        this.perlin = renderTarget.texture
+        this.perlin.wrapS = THREE.RepeatWrapping
+        this.perlin.wrapT = THREE.RepeatWrapping
 
         // Material
         const material = new THREE.MeshBasicNodeMaterial()
@@ -219,6 +231,49 @@ export class Noises
         material.outputNode = vec4(
             perlinNode(uv(), 6.0, 6.0).remap(0.1, 0.9, 0.0, 1.0),
             hash(uv().mul(128).floor().div(128)).x,
+            // 0,
+			0,
+			0
+        )
+
+		// Render
+		this.quadMesh.material = material
+		
+		const rendererState = THREE.RendererUtils.resetRendererState(this.game.rendering.renderer)
+
+        this.game.rendering.renderer.setPixelRatio(1)
+		this.game.rendering.renderer.setRenderTarget(renderTarget)
+		this.quadMesh.render(this.game.rendering.renderer)
+        this.game.rendering.renderer.setRenderTarget(null)
+
+		THREE.RendererUtils.restoreRendererState(this.game.rendering.renderer, rendererState)
+	}
+
+	setHash()
+	{
+		// Render target
+        const renderTarget = new THREE.RenderTarget(
+            this.resolution,
+            this.resolution,
+            {
+                depthBuffer: false,
+				format: THREE.RedFormat,
+                type: THREE.HalfFloatType
+            }
+        )
+        this.hash = renderTarget.texture
+        this.hash.wrapS = THREE.RepeatWrapping
+        this.hash.wrapT = THREE.RepeatWrapping
+        this.hash.minFilter = THREE.NearestFilter
+        this.hash.magFilter = THREE.NearestFilter
+        this.hash.generateMipmaps = false
+
+        // Material
+        const material = new THREE.MeshBasicNodeMaterial()
+
+        material.outputNode = vec4(
+            hash(uv().mul(128).floor().div(128)).x,
+            0,
 			0,
 			0
         )

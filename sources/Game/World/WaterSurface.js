@@ -95,7 +95,7 @@ export class WaterSurface
             const rippleIndex = baseRipple.floor()
 
             const ripplesNoise = texture(
-                this.game.noises.others,
+                this.game.noises.perlin,
                 positionWorld.xz.add(rippleIndex.div(ripplesNoiseOffset)).mul(ripplesNoiseFrequency)
             ).r
             
@@ -184,7 +184,7 @@ export class WaterSurface
                 positionWorld.xz.mul(splashesNoiseFrequency)
             )
             const splashPerlin = texture(
-                this.game.noises.others,
+                this.game.noises.perlin,
                 positionWorld.xz.mul(splashesNoiseFrequency.mul(0.25))
             ).r
 

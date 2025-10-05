@@ -50,7 +50,7 @@ export class Whispers
             const random = hash(instanceIndex)
             const noiseStrength = uv().y.remapClamp(0.25, 1, 0, 1).mul(0.6)
             const noiseUv = vec2(random, uv().y.mul(0.5).sub(this.game.ticker.elapsedScaledUniform.mul(0.1)))
-            const noise = texture(this.game.noises.others, noiseUv).r.sub(0.5).mul(noiseStrength)
+            const noise = texture(this.game.noises.perlin, noiseUv).r.sub(0.5).mul(noiseStrength)
             newPosition.x.addAssign(noise)
 
             return newPosition

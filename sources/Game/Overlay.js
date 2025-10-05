@@ -54,7 +54,7 @@ export class Overlay
             diagonalProgress.lessThan(mask).discard()
 
             // Gradient
-            const colorHash = texture(this.game.noises.others, viewportCoordinate.div(this.game.noises.resolution)).g.sub(0.5).mul(0.2)
+            const colorHash = texture(this.game.noises.hash, viewportCoordinate.div(this.game.noises.resolution)).r.sub(0.5).mul(0.2)
             const colorMix = screenUV.length().add(colorHash)
             const finalColor = mix(colorA, colorB, colorMix)
 

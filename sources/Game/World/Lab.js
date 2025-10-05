@@ -1186,7 +1186,7 @@ export class Lab
             {
                 const noiseUv = uv().mul(vec2(2, 0.2))
                 noiseUv.y.addAssign(this.game.ticker.elapsedScaledUniform.mul(0.05))
-                const noise = texture(this.game.noises.others, noiseUv).r
+                const noise = texture(this.game.noises.perlin, noiseUv).r
 
                 const strength = noise.mul(uv().y.pow(2))
 

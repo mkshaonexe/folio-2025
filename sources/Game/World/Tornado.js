@@ -93,12 +93,12 @@ export class Tornado
             // Noise 1
             const emissiveNoise1Uv = uv().add(vec2(scaledTime.mul(1.1), scaledTime.mul(1.1)))
             emissiveNoise1Uv.assign(skewedUv(emissiveNoise1Uv, vec2(- 1, 0)).mul(vec2(4, 0.5)))
-            const emissiveNoise1 = texture(this.game.noises.others, emissiveNoise1Uv, 1).r.remap(0.45, 0.7)
+            const emissiveNoise1 = texture(this.game.noises.perlin, emissiveNoise1Uv, 1).r.remap(0.45, 0.7)
 
             // Noise 2
             const emissiveNoise2Uv = uv().add(vec2(scaledTime.mul(0.7), scaledTime.mul(0.7)))
             emissiveNoise2Uv.assign(skewedUv(emissiveNoise2Uv, vec2(- 1, 0)).mul(vec2(10, 2)))
-            const emissiveNoise2 = texture(this.game.noises.others, emissiveNoise2Uv, 1).r.remap(0.45, 0.7)
+            const emissiveNoise2 = texture(this.game.noises.perlin, emissiveNoise2Uv, 1).r.remap(0.45, 0.7)
 
             // Final noise
             const emissiveNoise = emissiveNoise1.mul(emissiveNoise2).add(heightModifier).add(visibilityModifier)
@@ -113,12 +113,12 @@ export class Tornado
             // Noise 1
             const gooNoise1Uv = uv().add(vec2(scaledTime.mul(0.88), scaledTime.mul(0.88))).add(vec2(0.5));
             gooNoise1Uv.assign(skewedUv(gooNoise1Uv, vec2(- 1, 0)).mul(vec2(3, 0.4)));
-            const gooNoise1 = texture(this.game.noises.others, gooNoise1Uv, 1).r.remap(0.45, 0.7);
+            const gooNoise1 = texture(this.game.noises.perlin, gooNoise1Uv, 1).r.remap(0.45, 0.7);
 
             // Noise 2
             const gooNoise2Uv = uv().add(vec2(scaledTime.mul(0.66), scaledTime.mul(0.66))).add(vec2(0.5));
             gooNoise2Uv.assign(skewedUv(gooNoise2Uv,vec2(- 1, 0)).mul(vec2(8, 2)));
-            const gooNoise2 = texture(this.game.noises.others, gooNoise2Uv, 1).r.remap(0.45, 0.7);
+            const gooNoise2 = texture(this.game.noises.perlin, gooNoise2Uv, 1).r.remap(0.45, 0.7);
 
             // Final noise
             const gooNoise = gooNoise1.mul(gooNoise2).add(heightModifier).add(visibilityModifier)

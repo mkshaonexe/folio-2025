@@ -151,7 +151,7 @@ export class Grass
             bladePosition.assign(worldPosition.xz)
 
             // Height
-            const heightVariation = texture(this.game.noises.others, bladePosition.mul(0.0321)).r.add(0.5)
+            const heightVariation = texture(this.game.noises.perlin, bladePosition.mul(0.0321)).r.add(0.5)
             const height = this.bladeHeight
                 .mul(this.bladeHeightRandomness.mul(attribute('heightRandomness')).add(this.bladeHeightRandomness.oneMinus()))
                 .mul(heightVariation)

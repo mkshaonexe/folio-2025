@@ -44,9 +44,9 @@ export class Fireballs
             const noiseUvY = positionGeometry.xz.mul(0.8).add(0.8)
             const noiseUvZ = positionGeometry.xy.mul(0.8).add(1.6)
 
-            const noiseX = texture(this.game.noises.others, noiseUvX, 1).r
-            const noiseY = texture(this.game.noises.others, noiseUvY, 1).r
-            const noiseZ = texture(this.game.noises.others, noiseUvZ, 1).r
+            const noiseX = texture(this.game.noises.perlin, noiseUvX, 1).r
+            const noiseY = texture(this.game.noises.perlin, noiseUvY, 1).r
+            const noiseZ = texture(this.game.noises.perlin, noiseUvZ, 1).r
 
             const blending = normalGeometry.abs().normalize()
             blending.assign(blending.div(blending.x.add(blending.y).add(blending.z)))

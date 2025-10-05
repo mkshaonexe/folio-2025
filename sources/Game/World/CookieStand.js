@@ -60,7 +60,7 @@ export class CookieStand
                 .mul(vec2(0.35, 0.175))
                 .sub(vec2(0.1, 0.05).mul(this.game.ticker.elapsedScaledUniform))
                 
-            const noise = texture(this.game.noises.others, windUv).r
+            const noise = texture(this.game.noises.perlin, windUv).r
             windStrength.assign(noise.mul(baseUv.y).mul(this.game.wind.strength))
             const windDirection = vec3(0.5, 0, 1)
             newPosition.addAssign(windDirection.mul(windStrength))
@@ -136,7 +136,7 @@ export class CookieStand
         {
             const noiseUv = uv().mul(vec2(2, 0.2))
             noiseUv.y.addAssign(this.game.ticker.elapsedScaledUniform.mul(0.05))
-            const noise = texture(this.game.noises.others, noiseUv).r
+            const noise = texture(this.game.noises.perlin, noiseUv).r
 
             const strength = noise.mul(uv().y.pow(2))
 

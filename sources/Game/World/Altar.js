@@ -67,7 +67,7 @@ export class Altar
 
             // Noise
             const noiseUv = vec2(baseUv.x.mul(6).add(baseUv.y.mul(-2)), baseUv.y.mul(1).sub(this.game.ticker.elapsedScaledUniform.mul(0.2)))
-            const noise = texture(this.game.noises.others, noiseUv).r
+            const noise = texture(this.game.noises.perlin, noiseUv).r
             noise.addAssign(baseUv.y.mul(this.beamAttenuation.add(1)))
 
             // Emissive

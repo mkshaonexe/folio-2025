@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { attribute, cameraNormalMatrix, color, cross, dot, float, Fn, hash, If, materialNormal, min, mix, modelNormalMatrix, modelViewMatrix, normalWorld, PI, positionGeometry, positionLocal, positionWorld, rotateUV, step, texture, time, uniform, uv, uvec4, varying, vec2, vec3, vec4, viewportSize } from 'three/tsl'
+import { attribute, cameraNormalMatrix, color, cross, dot, float, Fn, hash, If, materialNormal, min, mix, modelNormalMatrix, modelViewMatrix, normalWorld, PI, PI2, positionGeometry, positionLocal, positionWorld, rotateUV, step, texture, time, uniform, uv, uvec4, varying, vec2, vec3, vec4, viewportSize } from 'three/tsl'
 import { clamp, remapClamp } from '../utilities/maths.js'
 import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
@@ -67,10 +67,10 @@ export class Snow
 
             // Noise
             const noiseUv1 = position.mul(this.noise1Frequency).xy
-            const noise1 = texture(this.game.noises.others, noiseUv1).r
+            const noise1 = texture(this.game.noises.perlin, noiseUv1).r
 
             const noiseUv2 = position.mul(this.noise2Frequency).xy
-            const noise2 = texture(this.game.noises.others, noiseUv2).r
+            const noise2 = texture(this.game.noises.perlin, noiseUv2).r
 
             elevation.addAssign(noise1.mul(noise2).smoothstep(0, 1).mul(this.noiseMultiplier))
 
@@ -248,11 +248,15 @@ export class Snow
         this.fadeEdgeHigh = uniform(0.5)
         this.fadeEdgeLow = uniform(0.022)
         this.normalNeighbourShift = uniform(0.2)
-        this.glittersProgress = uniform(0)
-        this.glittersPositionFrequency = uniform(20)
-        this.glittersVariationFrequency = uniform(0.0001)
-        this.glittersScarcity = uniform(0.0004)
-        this.glittersStrength = uniform(3)
+        // this.glittersProgress = uniform(0)
+        // this.glittersPositionFrequency = uniform(20)
+        // this.glittersVariationFrequency = uniform(0.0001)
+        // this.glittersScarcity = uniform(0.0004)
+        // this.glittersStrength = uniform(3)
+        this.glitterPositionMultiplier = 0.000003
+        this.glitterPositionDelta = uniform(0)
+        this.glitterScarcity = uniform(0.0005)
+        this.glitterLighten = uniform(0.2)
 
         const deltaY = varying(float())
         const worldUv = varying(vec2())
@@ -350,21 +354,24 @@ export class Snow
         this.material.outputNode = Fn(() =>
         {
             // Glitter
-            const glittersUv = worldUv.mul(this.glittersPositionFrequency)
-            const glittersUvLoop = glittersUv.fract()
+            // const glittersUv = worldUv.mul(this.glittersFrequency)
+            // const glittersUvLoop = glittersUv.fract()
 
-            const noiseSubdivisions = 128
-            const noiseUv = worldUv.div(noiseSubdivisions).mul(this.glittersPositionFrequency)
-            const glittersRandom1 = texture(this.game.noises.others, noiseUv.mul(noiseSubdivisions).floor().div(noiseSubdivisions)).g
-            const glittersRandom2 = texture(this.game.noises.others, noiseUv.add(0.5).mul(noiseSubdivisions).floor().div(noiseSubdivisions)).g
-            const glittersProgress = this.glittersProgress.mul(this.glittersVariationFrequency)
-            const glittersStrength = glittersProgress.sub(glittersRandom1).fract().sub(0.5).abs().remapClamp(0, this.glittersScarcity, 1, 0).toVar()
+            // const noiseUv = worldUv.div(128).mul(this.glittersPositionFrequency)
+            // const glittersRandom1 = texture(this.game.noises.hash, noiseUv).r
+            // const glittersRandom2 = texture(this.game.noises.hash, noiseUv.add(0.5)).r
+            // const glittersProgress = this.glittersProgress.mul(this.glittersVariationFrequency)
+            // const glittersStrength = glittersProgress.sub(glittersRandom1).fract().sub(0.5).abs().remapClamp(0, this.glittersScarcity, 1, 0).toVar()
+
+            // const glittersShape = glittersUvLoop.sub(0.5).length()
+            // glittersShape.assign(step(glittersShape, glittersRandom2.mul(0.5)))
+            // glittersStrength.mulAssign(glittersShape.mul(this.glittersStrength))
+
+            const glittersUv = positionWorld.xz.mul(0.2)
+            const glitter = texture(this.game.noises.hash, glittersUv).r
+            const glitterLighten = this.glitterPositionDelta.add(glitter).fract().sub(0.5).abs().mul(2).remapClamp(0.9999, 1, 0, 1)
             
-            const glittersShape = glittersUvLoop.sub(0.5).length()
-            glittersShape.assign(step(glittersShape, glittersRandom2.mul(0.5)))
-            glittersStrength.mulAssign(glittersShape.mul(this.glittersStrength))
-
-            return vec4(baseOutput.rgb.add(glittersStrength), baseOutput.a)
+            return vec4(baseOutput.rgb.add(glitterLighten), baseOutput.a)
         })()
 
         // Debug
@@ -385,10 +392,10 @@ export class Snow
             this.debugPanel.addBinding(this.waterDropEdgeHigh, 'value', { label: 'waterDropEdgeHigh', min: 0, max: 1, step: 0.001 })
             this.debugPanel.addBinding(this.waterDropAmplitude, 'value', { label: 'waterDropAmplitude', min: 0, max: 5, step: 0.001 })
             this.debugPanel.addBlade({ view: 'separator' })
-            this.debugPanel.addBinding(this.glittersPositionFrequency, 'value', { label: 'glittersPositionFrequency', min: 1, max: 100, step: 1 })
-            this.debugPanel.addBinding(this.glittersVariationFrequency, 'value', { label: 'glittersVariationFrequency', min: 0, max: 0.001, step: 0.000001 })
-            this.debugPanel.addBinding(this.glittersScarcity, 'value', { label: 'glittersScarcity', min: 0, max: 0.01, step: 0.000001 })
-            this.debugPanel.addBinding(this.glittersStrength, 'value', { label: 'glittersStrength', min: 0, max: 10, step: 0.001 })
+            // this.debugPanel.addBinding(this.glittersPositionFrequency, 'value', { label: 'glittersPositionFrequency', min: 1, max: 100, step: 1 })
+            // this.debugPanel.addBinding(this.glittersVariationFrequency, 'value', { label: 'glittersVariationFrequency', min: 0, max: 0.001, step: 0.000001 })
+            // this.debugPanel.addBinding(this.glittersScarcity, 'value', { label: 'glittersScarcity', min: 0, max: 0.01, step: 0.000001 })
+            // this.debugPanel.addBinding(this.glittersStrength, 'value', { label: 'glittersStrength', min: 0, max: 10, step: 0.001 })
         }
     }
 
@@ -407,7 +414,8 @@ export class Snow
         this.elevationBinding.update()
 
         // Glitter
-        this.glittersProgress.value = 1 + this.game.view.camera.position.x + this.game.view.camera.position.z + this.game.ticker.elapsedScaled * 0.4
+        // this.glitterPositionDelta.value = 1 + (this.game.view.camera.position.x + this.game.view.camera.position.z) * this.glitterPositionMultiplier + this.game.ticker.elapsedScaled * 0.4
+        this.glitterPositionDelta.value = 123.456 + (this.game.view.camera.position.x + this.game.view.camera.position.z) * this.glitterPositionMultiplier
         
         // Rounded position
         this.roundedPosition.value.x = Math.round(this.game.view.optimalArea.position.x / this.subdivisionSize) * this.subdivisionSize

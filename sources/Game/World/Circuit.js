@@ -42,20 +42,19 @@ export default class Circuit
         this.road = {}
         const mesh = this.references.get('road')[0]
         
+        this.road.color = uniform(color('#383039'))
         this.road.glitterPositionMultiplier = 0.3
         this.road.glitterPositionDelta = uniform(0)
-        this.road.color = uniform(color('#383039'))
         this.road.glitterScarcity = uniform(0.02)
         this.road.glitterLighten = uniform(0.2)
         this.road.middleLighten = uniform(0.075)
 
         const colorNode = Fn(() =>
         {
-            const noiseUv = positionWorld.xz.mul(this.game.noises.resolution).mul(0.2).floor().div(this.game.noises.resolution).div(0.2)
-            // const noiseUv = positionWorld.xz.mul(0.2)
-            const noise = texture(this.game.noises.others, noiseUv).g
+            const glitterUv = positionWorld.xz.mul(0.2)
+            const glitter = texture(this.game.noises.hash, glitterUv).r
             
-            const glitterLighten = this.road.glitterPositionDelta.mul(this.road.glitterScarcity).sub(noise.mul(12.34)).fract().sub(0.5).abs().remapClamp(0, this.road.glitterScarcity, 1, 0).mul(this.road.glitterLighten)
+            const glitterLighten = this.road.glitterPositionDelta.mul(this.road.glitterScarcity).sub(glitter.mul(12.34)).fract().sub(0.5).abs().remapClamp(0, this.road.glitterScarcity, 1, 0).mul(this.road.glitterLighten)
             
             const middleLighten = uv().y.mul(PI).sin().mul(this.road.middleLighten)
 

@@ -95,7 +95,7 @@ export class Leaves
 
         // Color buffer
         const colorA = uniform(color(0x95513a))// 0x999257
-        const colorB = uniform(color(0xc86847))// 0xcc8214
+        const colorB = uniform(color(0xf56a3a))// 0xcc8214
         const colorNode = Fn(() =>
         {
             const mixStrength = hash(instanceIndex.add(99))
@@ -162,7 +162,7 @@ export class Leaves
             ))
 
             const noiseUv = position.xz.mul(0.02)
-            const noise = texture(this.game.noises.others, noiseUv).r
+            const noise = texture(this.game.noises.perlin, noiseUv).r
             position.x.addAssign(noise.mul(15))
         })()
         const initCompute = init.compute(this.count)
@@ -196,7 +196,7 @@ export class Leaves
 
             // Wind
             const noiseUv = position.xz.mul(this.windFrequency).add(this.game.wind.direction.mul(this.game.wind.localTime)).xy
-            const noise = texture(this.game.noises.others, noiseUv).r
+            const noise = texture(this.game.noises.perlin, noiseUv).r
 
             const windStrength = this.game.wind.strength.sub(noise).mul(weight).mul(this.windMultiplier).max(0)
             velocity.x.addAssign(this.game.wind.direction.x.mul(windStrength))
