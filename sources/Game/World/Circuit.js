@@ -5,7 +5,7 @@ import { InteractivePoints } from '../InteractivePoints.js'
 import gsap from 'gsap'
 import { Player } from '../Player.js'
 import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
-import { color, Fn, max, PI, positionWorld, texture, uniform, uv, vec3 } from 'three/tsl'
+import { color, Fn, max, PI, positionWorld, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
 
 export default class Circuit
 {
@@ -154,7 +154,7 @@ export default class Circuit
 
         this.countdown.element = this.game.domElement.querySelector('.js-circuit-countdown')
         this.countdown.timeline = gsap.timeline({ paused: true })
-        this.countdown.interDuration = 2
+        this.countdown.interDuration = 0.5
         this.countdown.endCallback = null
 
         this.countdown.timeline.add(gsap.delayedCall(this.countdown.interDuration, () =>
@@ -199,6 +199,7 @@ export default class Circuit
         this.checkpoints.target = null
         this.checkpoints.reachedCount = 0
 
+        // Create checkpoints
         const baseCheckpoints = this.references.get('checkpoints').sort((a, b) => a.name.localeCompare(b.name))
 
         let i = 0
@@ -206,47 +207,53 @@ export default class Circuit
         {
             const checkpoint = {}
 
-            checkpoint.index = i
-
             baseCheckpoint.rotation.reorder('YXZ')
+            baseCheckpoint.visible = false
+
+            checkpoint.index = i
+            checkpoint.position = baseCheckpoint.position.clone()
+            checkpoint.rotation = baseCheckpoint.rotation.y
+            checkpoint.scale = baseCheckpoint.scale.x * 0.5
+
 
             // Center
-            checkpoint.center = new THREE.Vector2(baseCheckpoint.position.x, baseCheckpoint.position.z)
+            checkpoint.center = new THREE.Vector2(checkpoint.position.x, checkpoint.position.z)
 
             // Segment
-            checkpoint.a = new THREE.Vector2(baseCheckpoint.position.x - baseCheckpoint.scale.x, baseCheckpoint.position.z)
-            checkpoint.b = new THREE.Vector2(baseCheckpoint.position.x + baseCheckpoint.scale.x, baseCheckpoint.position.z)
+            checkpoint.a = new THREE.Vector2(checkpoint.position.x - checkpoint.scale, checkpoint.position.z)
+            checkpoint.b = new THREE.Vector2(checkpoint.position.x + checkpoint.scale, baseCheckpoint.position.z)
 
-            checkpoint.a.rotateAround(checkpoint.center, - baseCheckpoint.rotation.y)
-            checkpoint.b.rotateAround(checkpoint.center, - baseCheckpoint.rotation.y)
+            checkpoint.a.rotateAround(checkpoint.center, - checkpoint.rotation)
+            checkpoint.b.rotateAround(checkpoint.center, - checkpoint.rotation)
 
-            // Helpers
-            checkpoint.helper = baseCheckpoint
-            checkpoint.helper.material = new THREE.MeshBasicNodeMaterial({ color: 'red', wireframe: true })
-            this.game.scene.add(checkpoint.helper)
+            // // Helpers
+            // const helperA = new THREE.Mesh(
+            //     new THREE.CylinderGeometry(0.1, 0.1, 2, 8, 1),
+            //     new THREE.MeshBasicNodeMaterial({ color: 'yellow', wireframe: true })
+            // )
+            // helperA.position.x = checkpoint.a.x
+            // helperA.position.z = checkpoint.a.y
+            // this.game.scene.add(helperA)
 
-            const helperA = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.1, 0.1, 2, 8, 1),
-                new THREE.MeshBasicNodeMaterial({ color: 'yellow', wireframe: true })
-            )
-            helperA.position.x = checkpoint.a.x
-            helperA.position.z = checkpoint.a.y
-            this.game.scene.add(helperA)
-
-            const helperB = new THREE.Mesh(
-                new THREE.CylinderGeometry(0.1, 0.1, 2, 8, 1),
-                new THREE.MeshBasicNodeMaterial({ color: 'yellow', wireframe: true })
-            )
-            helperB.position.x = checkpoint.b.x
-            helperB.position.z = checkpoint.b.y
-            this.game.scene.add(helperB)
+            // const helperB = new THREE.Mesh(
+            //     new THREE.CylinderGeometry(0.1, 0.1, 2, 8, 1),
+            //     new THREE.MeshBasicNodeMaterial({ color: 'yellow', wireframe: true })
+            // )
+            // helperB.position.x = checkpoint.b.x
+            // helperB.position.z = checkpoint.b.y
+            // this.game.scene.add(helperB)
 
             // Set target
             checkpoint.setTarget = () =>
             {
                 this.checkpoints.target = checkpoint
 
-                checkpoint.helper.material.color.set('cyan')
+                // Mesh
+                this.checkpoints.doorTarget.scaleUniform.value = checkpoint.scale
+                this.checkpoints.doorTarget.mesh.visible = true
+                this.checkpoints.doorTarget.mesh.position.copy(checkpoint.position)
+                this.checkpoints.doorTarget.mesh.rotation.y = checkpoint.rotation
+                this.checkpoints.doorTarget.mesh.scale.x = checkpoint.scale
             }
 
             // Reach
@@ -262,7 +269,13 @@ export default class Circuit
                     this.game.world.confetti.pop(new THREE.Vector3(checkpoint.a.x, 0, checkpoint.a.y))
                     this.game.world.confetti.pop(new THREE.Vector3(checkpoint.b.x, 0, checkpoint.b.y))
                 }
-                checkpoint.helper.material.color.set('lime')
+
+                // Mesh
+                this.checkpoints.doorReached.scaleUniform.value = checkpoint.scale
+                this.checkpoints.doorReached.mesh.visible = true
+                this.checkpoints.doorReached.mesh.position.copy(checkpoint.position)
+                this.checkpoints.doorReached.mesh.rotation.y = checkpoint.rotation
+                this.checkpoints.doorReached.mesh.scale.x = checkpoint.scale
                 
                 // Update reach and targets
                 this.checkpoints.reachedCount++
@@ -287,16 +300,85 @@ export default class Circuit
 
             this.checkpoints.count = this.checkpoints.items.length
 
-            // Reach
+            // Reset
             checkpoint.reset = () =>
             {
-                checkpoint.helper.material.color.set('red')
+                // // Mesh
+                // checkpoint.mesh.visible = false
             }
 
             // Save
             this.checkpoints.items.push(checkpoint)
 
             i++
+        }
+
+        // Checkpoint doors
+        const doorIntensity = uniform(2)
+        const doorOutputColor = Fn(([doorColor, doorScale]) =>
+        {
+            const baseUv = uv()
+
+            const squaredUV = baseUv.toVar()
+            squaredUV.y.subAssign(this.game.ticker.elapsedScaledUniform.mul(0.2))
+            squaredUV.mulAssign(vec2(
+                doorScale,
+                1
+            ).mul(2))
+
+            const stripes = squaredUV.x.add(squaredUV.y).fract().step(0.5)
+
+            const alpha = baseUv.y.oneMinus().mul(stripes)
+
+            return vec4(doorColor.mul(doorIntensity), alpha)
+        })
+
+        const doorGeometry = new THREE.PlaneGeometry(2, 2)
+
+        {
+            this.checkpoints.doorTarget = {}
+            this.checkpoints.doorTarget.scaleUniform = uniform(2)
+
+            const material = new THREE.MeshBasicNodeMaterial({ transparent: true, side: THREE.DoubleSide })
+            material.outputNode = doorOutputColor(color('#33ffd3'), this.checkpoints.doorTarget.scaleUniform)
+            
+            const mesh = new THREE.Mesh(doorGeometry, material)
+            mesh.scale.x = 1
+            mesh.castShadow = false
+            mesh.receiveShadow = false
+            mesh.material = material
+            mesh.visible = false
+            this.game.scene.add(mesh)
+
+            this.checkpoints.doorTarget.mesh = mesh
+        }
+
+        {
+            this.checkpoints.doorReached = {}
+            this.checkpoints.doorReached.scaleUniform = uniform(2)
+            
+            const material = new THREE.MeshBasicNodeMaterial({ transparent: true, side: THREE.DoubleSide })
+            material.outputNode = doorOutputColor(color('#cbff62'), this.checkpoints.doorReached.scaleUniform)
+            
+            const mesh = new THREE.Mesh(doorGeometry, material)
+            mesh.scale.x = 1
+            mesh.castShadow = false
+            mesh.receiveShadow = false
+            mesh.material = material
+            mesh.visible = false
+            this.game.scene.add(mesh)
+
+            this.checkpoints.doorReached.mesh = mesh
+        }
+
+        // Debug
+        if(this.game.debug.active)
+        {
+            // const debugPanel = this.debugPanel.addFolder({ title: 'checkpoints' })
+            // this.game.debug.addThreeColorBinding(debugPanel, this.checkpoints.targetColor, 'targetColor')
+            // this.game.debug.addThreeColorBinding(debugPanel, this.checkpoints.reachedColor, 'reachedColor')
+            
+            // debugPanel.addBinding(this.checkpoints.intensity, 'value', { label: 'intensity', min: 0, max: 5, step: 0.01 })
         }
     }
 
