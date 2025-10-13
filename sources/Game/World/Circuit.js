@@ -1369,10 +1369,14 @@ export default class Circuit
                 if(!forced)
                     this.podium.show()
 
-                gsap.delayedCall(1, () =>
+                // Circuit en modal (if server connected)
+                if(this.game.server.connected)
                 {
-                    this.game.modals.open('circuit-end')
-                })
+                    gsap.delayedCall(1, () =>
+                    {
+                        this.game.modals.open('circuit-end')
+                    })
+                }
 
                 // Overlay > Hide
                 this.game.overlay.hide(() =>
