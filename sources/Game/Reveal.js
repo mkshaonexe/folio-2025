@@ -13,7 +13,7 @@ export class Reveal
         this.distance = uniform(0)
         this.thickness = uniform(0.05)
         this.color = uniform(color('#e88eff'))
-        this.intensity = uniform(10)
+        this.intensity = uniform(6.5)
 
         if(this.game.debug.active)
         {

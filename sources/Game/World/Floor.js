@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { float, Fn, materialNormal, min, normalWorld, positionLocal, positionWorld, uv, vec3, vec4 } from 'three/tsl'
+import { float, Fn, materialNormal, min, mix, normalWorld, positionLocal, positionWorld, texture, uv, vec3, vec4 } from 'three/tsl'
 import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Floor
@@ -34,14 +34,24 @@ export class Floor
 
         // Terrain data
         const terrainData = this.game.terrain.terrainNode(positionWorld.xz)
-        const terrainDataGrass = terrainData.g
-        const baseColor = this.game.terrain.colorNode(terrainData)
+        const colorNode = Fn(() =>
+        {
+            const baseColor = this.game.terrain.colorNode(terrainData)
+            
+            const slabNoiseUv = positionWorld.xz.mul(0.03)
+            const slabNoise = texture(this.game.noises.perlin, slabNoiseUv).r
+            const slabStrength = slabNoise.mul(terrainData.r)
+            const slabsColor = texture(this.game.resources.terrainSlabsTexture, positionWorld.xz.mul(0.2)).rgb
+            
+            const finalColor = mix(baseColor, slabsColor, slabStrength)
+            return finalColor
+        })()
 
         // Material
         const material = new MeshDefaultMaterial({
-            colorNode: baseColor,
+            colorNode: colorNode,
             normalNode: vec3(0, 1, 0),
-            shadowNode: terrainDataGrass,
+            shadowNode: terrainData.g,
             hasWater: false,
             hasLightBounce: false
         })

@@ -113,6 +113,7 @@ export class Game
                 [ 'cratesModel',                           'crates/crates.glb',                                    'gltf'    ],
                 [ 'terrainTexture',                        'terrain/terrain.png',                                  'texture', (resource) => { resource.flipY = false; } ],
                 [ 'terrainModel',                          'terrain/terrain.glb',                                  'gltf'    ],
+                [ 'terrainSlabsTexture',                   'terrain/slabs.png',                                    'texture', (resource) => { resource.wrapS = THREE.RepeatWrapping; resource.wrapT = THREE.RepeatWrapping; resource.colorSpace = THREE.SRGBColorSpace } ],
                 [ 'birchTreesVisualModel',                 'birchTrees/birchTreesVisual.glb',                      'gltf'    ],
                 [ 'birchTreesReferencesModel',             'birchTrees/birchTreesReferences.glb',                  'gltf'    ],
                 [ 'oakTreesVisualModel',                   'oakTrees/oakTreesVisual.glb',                          'gltf'    ],
@@ -135,7 +136,7 @@ export class Game
 
         const [ newResources, RAPIER ] = await Promise.all([ resourcesPromise, rapierPromise ])
         this.RAPIER = RAPIER
-        this.resources = { ...newResources }
+        this.resources = { ...newResources, ...this.resources }
 
         this.terrain = new Terrain()
         this.physics = new Physics()
