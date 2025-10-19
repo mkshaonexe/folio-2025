@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../Game.js'
-import { float, Fn, materialNormal, min, mix, normalWorld, positionLocal, positionWorld, texture, uv, vec3, vec4 } from 'three/tsl'
+import { color, float, Fn, materialNormal, min, mix, mul, normalWorld, positionLocal, positionWorld, texture, uniform, uv, vec3, vec4 } from 'three/tsl'
 import { MeshDefaultMaterial } from '../Materials/MeshDefaultMaterial.js'
 
 export class Floor
@@ -9,6 +9,14 @@ export class Floor
     {
         this.game = Game.getInstance()
 
+        // Debug
+        if(this.game.debug.active)
+        {
+            this.debugPanel = this.game.debug.panel.addFolder({
+                title: '⏥ Floor',
+                expanded: true,
+            })
+        }
         this.geometry = this.game.resources.terrainModel.scene.children[0].geometry
         this.subdivision = this.game.terrain.subdivision
 
@@ -34,16 +42,25 @@ export class Floor
 
         // Terrain data
         const terrainData = this.game.terrain.terrainNode(positionWorld.xz)
+        const slabHighColor = uniform(color('#ffdba6'))
+        const slabLowColor = uniform(color('#ac532d'))
+        const slabTextureFrequency = uniform(0.2)
+        const slabNoiseFrequency = uniform(0.03)
         const colorNode = Fn(() =>
         {
             const baseColor = this.game.terrain.colorNode(terrainData)
             
-            const slabNoiseUv = positionWorld.xz.mul(0.03)
+            const slabTerrain = terrainData.r
+            const slabNoiseUv = positionWorld.xz.mul(slabNoiseFrequency)
             const slabNoise = texture(this.game.noises.perlin, slabNoiseUv).r
-            const slabStrength = slabNoise.mul(terrainData.r)
-            const slabsColor = texture(this.game.resources.terrainSlabsTexture, positionWorld.xz.mul(0.2)).rgb
+            const slabsTexture = texture(this.game.resources.terrainSlabsTexture, positionWorld.xz.mul(slabTextureFrequency)).r
+            const slabColor = mix(slabLowColor, slabHighColor, slabsTexture)
+            // return vec3(slabsTexture.mul(slabStrength))
+
+            const slab = slabTerrain.mul(slabNoise)
+            // return vec3(slab)
             
-            const finalColor = mix(baseColor, slabsColor, slabStrength)
+            const finalColor = mix(baseColor, slabColor, slab)
             return finalColor
         })()
 
@@ -87,6 +104,14 @@ export class Floor
 
             this.mesh.geometry = geometry
         }, 2)
+
+        if(this.game.debug.active)
+        {
+            this.debugPanel.addBinding(slabTextureFrequency, 'value', { label: 'slabTextureFrequency', min: 0, max: 1, step: 0.001 })
+            this.debugPanel.addBinding(slabNoiseFrequency, 'value', { label: 'slabNoiseFrequency', min: 0, max: 0.1, step: 0.001 })
+            this.game.debug.addThreeColorBinding(this.debugPanel, slabHighColor.value, 'slabHighColor')
+            this.game.debug.addThreeColorBinding(this.debugPanel, slabLowColor.value, 'slabLowColor')
+        }
     }
 
     setPhysical()

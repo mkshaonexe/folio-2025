@@ -19,7 +19,7 @@ export class Reveal
         {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '📜 Reveal',
-                expanded: true,
+                expanded: false,
             })
 
             this.debugPanel.addButton({ title: 'expose' }).on('click', () => { this.expose() })
