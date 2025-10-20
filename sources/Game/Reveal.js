@@ -37,6 +37,9 @@ export class Reveal
 
     expose(center = null)
     {
+        // Grid
+        this.game.world.grid.show()
+
         // Center
         const _center = center instanceof THREE.Vector2 ? center : new THREE.Vector2(this.game.player.position.x, this.game.player.position.z)
         this.center.value.copy(_center)
@@ -114,8 +117,9 @@ export class Reveal
         timeline.call(
             () =>
             {
-                // this.game.interactivePoints.reveal()
+                this.game.interactivePoints.reveal()
                 this.game.world.init(2)
+                this.game.world.grid.hide()
             },
             [],
             'c'

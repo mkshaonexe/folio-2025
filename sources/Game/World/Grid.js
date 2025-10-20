@@ -57,18 +57,18 @@ export class Grid
         })()
         
 
-        const ground = new THREE.Mesh(
+        this.mesh = new THREE.Mesh(
             new THREE.PlaneGeometry(100, 100),
             uvGridMaterial
         )
-        ground.position.y -= 0.02
-        ground.rotation.x = - Math.PI * 0.5
+        this.mesh.position.y -= 0.02
+        this.mesh.rotation.x = - Math.PI * 0.5
 
         const defaultRespawn = this.game.respawns.getDefault()
-        ground.position.x = defaultRespawn.position.x
-        ground.position.z = defaultRespawn.position.z
+        this.mesh.position.x = defaultRespawn.position.x
+        this.mesh.position.z = defaultRespawn.position.z
         
-        this.game.scene.add(ground)
+        this.game.scene.add(this.mesh)
 
         // Debug
         if(this.game.debug.active)
@@ -108,5 +108,15 @@ export class Grid
                 ]
             }
         )
+    }
+
+    show()
+    {
+        this.game.scene.add(this.mesh)
+    }
+
+    hide()
+    {
+        this.game.scene.remove(this.mesh)
     }
 }
