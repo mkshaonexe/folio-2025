@@ -1,8 +1,8 @@
 import { Game } from './Game.js'
 import { Modals } from './Modals.js'
-import Circuit from './World/Areas/Circuit.js'
-import { Lab } from './World/Areas/Lab.js'
-import { Projects } from './World/Areas/Projects.js'
+import { CircuitArea } from './World/Areas/CircuitArea.js'
+import { LabArea } from './World/Areas/LabArea.js'
+import { ProjectsArea } from './World/Areas/ProjectsArea.js'
 
 export class ClosingManager
 {
@@ -29,15 +29,15 @@ export class ClosingManager
                     this.game.modals.close()
 
                 // Circuit running
-                else if(this.game.world.areas?.circuit?.state === Circuit.STATE_RUNNING || this.game.world.areas?.circuit?.state === Circuit.STATE_STARTING)
+                else if(this.game.world.areas?.circuit?.state === CircuitArea.STATE_RUNNING || this.game.world.areas?.circuit?.state === CircuitArea.STATE_STARTING)
                     this.game.modals.open('circuit')
 
                 // Projects => Close
-                else if(this.game.world.areas?.projects?.state === Projects.STATE_OPEN)
+                else if(this.game.world.areas?.projects?.state === ProjectsArea.STATE_OPEN)
                     this.game.world.areas.projects.close()
 
                 // Lab => Close
-                else if(this.game.world.areas?.lab?.state === Lab.STATE_OPEN)
+                else if(this.game.world.areas?.lab?.state === LabArea.STATE_OPEN)
                     this.game.world.areas.lab.close()
 
                 // Nothing opened and used the keyboard Escape key => Open default modal
@@ -68,9 +68,9 @@ export class ClosingManager
             this.game.inputs.filters.clear()
 
             if(
-                this.game.world.areas?.circuit?.state === Circuit.STATE_RUNNING ||
-                this.game.world.areas?.circuit?.state === Circuit.STATE_STARTING ||
-                this.game.world.areas?.circuit?.state === Circuit.STATE_ENDING
+                this.game.world.areas?.circuit?.state === CircuitArea.STATE_RUNNING ||
+                this.game.world.areas?.circuit?.state === CircuitArea.STATE_STARTING ||
+                this.game.world.areas?.circuit?.state === CircuitArea.STATE_ENDING
             )
             {
                 this.game.inputs.filters.add('racing')

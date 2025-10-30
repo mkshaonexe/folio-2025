@@ -8,7 +8,7 @@ import { MeshDefaultMaterial } from '../../Materials/MeshDefaultMaterial.js'
 import { alea } from 'seedrandom'
 import { Area } from './Area.js'
 
-export class CookieStand extends Area
+export class CookieStandArea extends Area
 {
     constructor(references)
     {

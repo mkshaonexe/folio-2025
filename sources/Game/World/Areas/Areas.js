@@ -1,19 +1,19 @@
 import { Game } from '../../Game.js'
 // import { PoleLights } from '../PoleLights.js'
-import { Altar } from './Altar.js'
-import { CookieStand } from './CookieStand.js'
-import { Bonfire } from './Bonfire.js'
-import { Intro } from './Intro.js'
-import { Controls } from './Controls.js'
-import { Projects } from './Projects.js'
-import { Lab } from './Lab.js'
-import { Career } from './Career.js'
-import { Social } from './Social.js'
-import { Toilet } from './Toilet.js'
-import { Bowling } from './Bowling.js'
-import Circuit from './Circuit.js'
-import { BehindTheScene } from './BehindTheScene.js'
-import { Achievements } from './Achievements.js'
+import { AltarArea } from './AltarArea.js'
+import { CookieStandArea } from './CookieStandArea.js'
+import { BonfireArea } from './BonfireArea.js'
+import { IntroArea } from './IntroArea.js'
+import { ControlsArea } from './ControlsArea.js'
+import { ProjectsArea } from './ProjectsArea.js'
+import { LabArea } from './LabArea.js'
+import { CareerArea } from './CareerArea.js'
+import { SocialArea } from './SocialArea.js'
+import { ToiletArea } from './ToiletArea.js'
+import { BowlingArea } from './BowlingArea.js'
+import { CircuitArea } from './CircuitArea.js'
+import { BehindTheSceneArea } from './BehindTheSceneArea.js'
+import { AchievementsArea } from './AchievementsArea.js'
 
 export class Areas
 {
@@ -34,35 +34,35 @@ export class Areas
 
         const achievementsReferences = this.references.getStartingWith('achievements')
         if(achievementsReferences.size)
-            this.achievements = new Achievements(achievementsReferences)
+            this.achievements = new AchievementsArea(achievementsReferences)
 
         const behindTheSceneReferences = this.references.getStartingWith('behindTheScene')
         if(behindTheSceneReferences.size)
-            this.behindTheScene = new BehindTheScene(behindTheSceneReferences)
+            this.behindTheScene = new BehindTheSceneArea(behindTheSceneReferences)
 
         const toiletReferences = this.references.getStartingWith('toilet')
         if(toiletReferences.size)
-            this.toilet = new Toilet(toiletReferences)
+            this.toilet = new ToiletArea(toiletReferences)
 
         const careerReferences = this.references.getStartingWith('career')
         if(careerReferences.size)
-            this.career = new Career(careerReferences)
+            this.career = new CareerArea(careerReferences)
 
         const socialReferences = this.references.getStartingWith('social')
         if(socialReferences.size)
-            this.social = new Social(socialReferences)
+            this.social = new SocialArea(socialReferences)
 
         const labReferences = this.references.getStartingWith('lab')
         if(labReferences.size)
-            this.lab = new Lab(labReferences)
+            this.lab = new LabArea(labReferences)
         
         const projectsReferences = this.references.getStartingWith('projects')
         if(projectsReferences.size)
-            this.projects = new Projects(projectsReferences)
+            this.projects = new ProjectsArea(projectsReferences)
         
         const altarReferences = this.references.getStartingWith('altar')
         if(altarReferences.size)
-            this.altar = new Altar(altarReferences)
+            this.altar = new AltarArea(altarReferences)
 
         // const poleLightsReferences = this.references.getStartingWith('poleLights')
         // if(poleLightsReferences.size)
@@ -70,27 +70,27 @@ export class Areas
             
         const cookieReferences = this.references.getStartingWith('cookie')
         if(cookieReferences.size)
-            this.cookieStand = new CookieStand(cookieReferences)
+            this.cookieStand = new CookieStandArea(cookieReferences)
             
         const bonfireReferences = this.references.getStartingWith('bonfire')
         if(bonfireReferences.size)
-            this.poleLights = new Bonfire(bonfireReferences)
+            this.poleLights = new BonfireArea(bonfireReferences)
             
         const introReferences = this.references.getStartingWith('intro')
         if(introReferences.size)
-            this.intro = new Intro(introReferences)
+            this.intro = new IntroArea(introReferences)
 
         const controlsReferences = this.references.getStartingWith('controls')
         if(controlsReferences.size)
-            this.controls = new Controls(controlsReferences)
+            this.controls = new ControlsArea(controlsReferences)
 
         const bowlingReferences = this.references.getStartingWith('bowling')
         if(bowlingReferences.size)
-            this.bowling = new Bowling(bowlingReferences)
+            this.bowling = new BowlingArea(bowlingReferences)
 
         const circuitReferences = this.references.getStartingWith('circuit')
         if(circuitReferences.size)
-            this.circuit = new Circuit(circuitReferences)
+            this.circuit = new CircuitArea(circuitReferences)
     }
 
     setReferences()

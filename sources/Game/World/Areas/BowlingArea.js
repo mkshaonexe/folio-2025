@@ -7,7 +7,7 @@ import { color, float, Fn, instancedBufferAttribute, instanceIndex, max, min, mi
 import { InstancedGroup } from '../../InstancedGroup.js'
 import { Area } from './Area.js'
 
-export class Bowling extends Area
+export class BowlingArea extends Area
 {
     constructor(references)
     {

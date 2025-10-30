@@ -9,7 +9,7 @@ import { Inputs } from '../../Inputs/Inputs.js'
 import { MeshDefaultMaterial } from '../../Materials/MeshDefaultMaterial.js'
 import { Area } from './Area.js'
 
-export class Projects extends Area
+export class ProjectsArea extends Area
 {
     static DIRECTION_PREVIOUS = 1
     static DIRECTION_NEXT = 2
@@ -31,7 +31,7 @@ export class Projects extends Area
             })
         }
         
-        this.state = Projects.STATE_CLOSED
+        this.state = ProjectsArea.STATE_CLOSED
 
         this.setInteractivePoint()
         this.setInputs()
@@ -128,7 +128,7 @@ export class Projects extends Area
 
         this.game.inputs.events.on('interact', (action) =>
         {
-            if(!action.active && this.state === Projects.STATE_OPEN)
+            if(!action.active && this.state === ProjectsArea.STATE_OPEN)
             {
                 this.url.open()
             }
@@ -136,25 +136,25 @@ export class Projects extends Area
 
         this.game.inputs.interactiveButtons.events.on('previous', () =>
         {
-            if(this.state === Projects.STATE_OPEN)
+            if(this.state === ProjectsArea.STATE_OPEN)
                 this.previous()
         })
 
         this.game.inputs.interactiveButtons.events.on('next', () =>
         {
-            if(this.state === Projects.STATE_OPEN)
+            if(this.state === ProjectsArea.STATE_OPEN)
                 this.next()
         })
 
         this.game.inputs.interactiveButtons.events.on('open', () =>
         {
-            if(this.state === Projects.STATE_OPEN)
+            if(this.state === ProjectsArea.STATE_OPEN)
                 this.url.open()
         })
 
         this.game.inputs.interactiveButtons.events.on('close', () =>
         {
-            if(this.state === Projects.STATE_OPEN)
+            if(this.state === ProjectsArea.STATE_OPEN)
                 this.close()
         })
     }
@@ -218,7 +218,7 @@ export class Projects extends Area
 
             const debugUpdate = () =>
             {
-                if(this.state === Projects.STATE_OPEN || this.state === Projects.STATE_OPENING)
+                if(this.state === ProjectsArea.STATE_OPEN || this.state === ProjectsArea.STATE_OPENING)
                 {
                     this.shadeMix.images.mixUniform.value = this.shadeMix.images.max
                     this.shadeMix.texts.mixUniform.value = this.shadeMix.texts.max
@@ -323,7 +323,7 @@ export class Projects extends Area
         this.images.width = 1920 * 0.5
         this.images.height = 1080 * 0.5
         this.images.index = 0
-        this.images.direction = Projects.DIRECTION_NEXT
+        this.images.direction = ProjectsArea.DIRECTION_NEXT
         this.images.resources = new Map()
         this.images.loadProgress = uniform(0)
         this.images.animationProgress = uniform(0)
@@ -436,7 +436,7 @@ export class Projects extends Area
             let projectIndex = this.navigation.index
             let imageIndex = this.images.index
 
-            if(this.images.direction === Projects.DIRECTION_PREVIOUS)
+            if(this.images.direction === ProjectsArea.DIRECTION_PREVIOUS)
                 imageIndex -= 1
             else
                 imageIndex += 1
@@ -537,7 +537,7 @@ export class Projects extends Area
 
             // Animate right away
             gsap.fromTo(this.images.animationProgress, { value: 0 }, { value: 1, duration: 1, ease: 'power2.inOut', overwrite: true })
-            this.images.animationDirection.value = direction === Projects.DIRECTION_NEXT ? 1 : -1
+            this.images.animationDirection.value = direction === ProjectsArea.DIRECTION_NEXT ? 1 : -1
         }
     }
 
@@ -663,7 +663,7 @@ export class Projects extends Area
                         gsap.to(item.mesh.scale, { x: 1, y: 1, z: 1, duration: 0.5, ease: 'power1.inOut', overwrite: true })
                         item.mesh.visible = true
                         item.visible = true
-                        item.intersect.active = this.state === Projects.STATE_OPENING || this.state === Projects.STATE_OPEN
+                        item.intersect.active = this.state === ProjectsArea.STATE_OPENING || this.state === ProjectsArea.STATE_OPEN
                     }
                 }
                 else
@@ -927,7 +927,7 @@ export class Projects extends Area
 
             this.title.status = 'hiding'
 
-            const rotationDirection = direction === Projects.DIRECTION_NEXT ? - 1 : 1
+            const rotationDirection = direction === ProjectsArea.DIRECTION_NEXT ? - 1 : 1
 
             this.title.inner.rotation.x = 0
             gsap.to(this.title.inner.rotation, { x: Math.PI * rotationDirection, duration: 1, delay: 0, ease: 'power2.in', overwrite: true, onComplete: () =>
@@ -1025,7 +1025,7 @@ export class Projects extends Area
 
             this.url.status = 'hiding'
 
-            const rotationDirection = direction === Projects.DIRECTION_NEXT ? - 1 : 1
+            const rotationDirection = direction === ProjectsArea.DIRECTION_NEXT ? - 1 : 1
 
             this.url.inner.rotation.x = 0
             gsap.to(this.url.inner.rotation, { x: Math.PI * rotationDirection, duration: 1, delay: 0.3, ease: 'power2.in', overwrite: true, onComplete: () =>
@@ -1139,7 +1139,7 @@ export class Projects extends Area
             paused: true,
             onRepeat: () =>
             {
-                if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING || !this.blackBoard.active)
+                if(this.state === ProjectsArea.STATE_CLOSED || this.state === ProjectsArea.STATE_CLOSING || !this.blackBoard.active)
                     this.blackBoard.timeline.pause()
             }
         })
@@ -1316,18 +1316,18 @@ export class Projects extends Area
 
     open()
     {
-        if(this.state === Projects.STATE_OPEN || this.state === Projects.STATE_OPENING)
+        if(this.state === ProjectsArea.STATE_OPEN || this.state === ProjectsArea.STATE_OPENING)
             return
 
         // State
-        this.state = Projects.STATE_OPENING
+        this.state = ProjectsArea.STATE_OPENING
 
         if(this.stateTransition)
             this.stateTransition.kill()
 
         this.stateTransition = gsap.delayedCall(1.5, () =>
         {
-            this.state = Projects.STATE_OPEN
+            this.state = ProjectsArea.STATE_OPEN
             this.stateTransition = null
         })
 
@@ -1372,18 +1372,18 @@ export class Projects extends Area
 
     close()
     {
-        if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
+        if(this.state === ProjectsArea.STATE_CLOSED || this.state === ProjectsArea.STATE_CLOSING)
             return
 
         // State
-        this.state = Projects.STATE_CLOSING
+        this.state = ProjectsArea.STATE_CLOSING
 
         if(this.stateTransition)
             this.stateTransition.kill()
 
         this.stateTransition = gsap.delayedCall(1.5, () =>
         {
-            this.state = Projects.STATE_CLOSED
+            this.state = ProjectsArea.STATE_CLOSED
             this.stateTransition = null
         })
 
@@ -1431,20 +1431,20 @@ export class Projects extends Area
 
     previousImage()
     {
-        if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
+        if(this.state === ProjectsArea.STATE_CLOSED || this.state === ProjectsArea.STATE_CLOSING)
             return
 
-        this.changeImage(this.images.index - 1, Projects.DIRECTION_PREVIOUS)
+        this.changeImage(this.images.index - 1, ProjectsArea.DIRECTION_PREVIOUS)
 
         this.blackBoard.active = false
     }
 
     previousProject(firstImage = false)
     {
-        if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
+        if(this.state === ProjectsArea.STATE_CLOSED || this.state === ProjectsArea.STATE_CLOSING)
             return
 
-        this.changeProject(this.navigation.index - 1, Projects.DIRECTION_PREVIOUS, firstImage)
+        this.changeProject(this.navigation.index - 1, ProjectsArea.DIRECTION_PREVIOUS, firstImage)
 
         this.blackBoard.active = false
     }
@@ -1459,25 +1459,25 @@ export class Projects extends Area
 
     nextImage()
     {
-        if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
+        if(this.state === ProjectsArea.STATE_CLOSED || this.state === ProjectsArea.STATE_CLOSING)
             return
 
-        this.changeImage(this.images.index + 1, Projects.DIRECTION_NEXT)
+        this.changeImage(this.images.index + 1, ProjectsArea.DIRECTION_NEXT)
 
         this.blackBoard.active = false
     }
 
     nextProject()
     {
-        if(this.state === Projects.STATE_CLOSED || this.state === Projects.STATE_CLOSING)
+        if(this.state === ProjectsArea.STATE_CLOSED || this.state === ProjectsArea.STATE_CLOSING)
             return
 
-        this.changeProject(this.navigation.index + 1, Projects.DIRECTION_NEXT)
+        this.changeProject(this.navigation.index + 1, ProjectsArea.DIRECTION_NEXT)
 
         this.blackBoard.active = false
     }
 
-    changeProject(index = 0, direction = Projects.DIRECTION_NEXT, firstImage = false)
+    changeProject(index = 0, direction = ProjectsArea.DIRECTION_NEXT, firstImage = false)
     {
         // Loop index
         let loopIndex = index
@@ -1505,7 +1505,7 @@ export class Projects extends Area
         if(firstImage)
             imageIndex = 0
         else
-            imageIndex = direction === Projects.DIRECTION_NEXT ? 0 : this.navigation.current.images.length - 1
+            imageIndex = direction === ProjectsArea.DIRECTION_NEXT ? 0 : this.navigation.current.images.length - 1
 
         this.changeImage(imageIndex, direction)
     }
@@ -1513,7 +1513,7 @@ export class Projects extends Area
     changeImage(imageIndex = 0, direction = null)
     {
         if(direction === null)
-            direction = imageIndex > this.images.index ? Projects.DIRECTION_NEXT : Projects.DIRECTION_PREVIOUS
+            direction = imageIndex > this.images.index ? ProjectsArea.DIRECTION_NEXT : ProjectsArea.DIRECTION_PREVIOUS
 
         this.images.index = imageIndex
 

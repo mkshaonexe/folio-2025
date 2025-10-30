@@ -5,7 +5,7 @@ import gsap from 'gsap'
 import { clamp } from 'three/src/math/MathUtils.js'
 import { Area } from './Area.js'
 
-export class Career extends Area
+export class CareerArea extends Area
 {
     constructor(references)
     {

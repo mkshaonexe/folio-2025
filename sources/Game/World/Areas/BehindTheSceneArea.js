@@ -5,7 +5,7 @@ import { attribute, color, float, Fn, mix, PI, PI2, positionGeometry, screenCoor
 import { InteractivePoints } from '../../InteractivePoints.js'
 import { Area } from './Area.js'
 
-export class BehindTheScene extends Area
+export class BehindTheSceneArea extends Area
 {
     constructor(references)
     {

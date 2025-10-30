@@ -7,7 +7,7 @@ import { alea } from 'seedrandom'
 import { Area } from './Area.js'
 import gsap from 'gsap'
 
-export class Bonfire extends Area
+export class BonfireArea extends Area
 {
     constructor(references)
     {

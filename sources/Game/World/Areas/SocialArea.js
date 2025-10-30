@@ -5,7 +5,7 @@ import socialData from '../../../data/social.js'
 import { InstancedGroup } from '../../InstancedGroup.js'
 import { Area } from './Area.js'
 
-export class Social extends Area
+export class SocialArea extends Area
 {
     constructor(references)
     {

@@ -7,7 +7,7 @@ import { alea } from 'seedrandom'
 
 const rng = new alea('achievements')
 
-export class Achievements extends Area
+export class AchievementsArea extends Area
 {
     constructor(references)
     {

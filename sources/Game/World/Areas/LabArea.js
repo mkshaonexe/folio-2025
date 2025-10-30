@@ -10,7 +10,7 @@ import { Inputs } from '../../Inputs/Inputs.js'
 import { MeshDefaultMaterial } from '../../Materials/MeshDefaultMaterial.js'
 import { Area } from './Area.js'
 
-export class Lab extends Area
+export class LabArea extends Area
 {
     static DIRECTION_PREVIOUS = 1
     static DIRECTION_NEXT = 2
@@ -32,7 +32,7 @@ export class Lab extends Area
             })
         }
         
-        this.state = Lab.STATE_CLOSED
+        this.state = LabArea.STATE_CLOSED
 
         this.setInteractivePoint()
         this.setInputs()
@@ -127,31 +127,31 @@ export class Lab extends Area
 
         this.game.inputs.events.on('interact', (action) =>
         {
-            if(!action.active && this.state === Lab.STATE_OPEN)
+            if(!action.active && this.state === LabArea.STATE_OPEN)
                 this.url.open()
         })
 
         this.game.inputs.interactiveButtons.events.on('previous', () =>
         {
-            if(this.state === Lab.STATE_OPEN)
+            if(this.state === LabArea.STATE_OPEN)
                 this.previous()
         })
 
         this.game.inputs.interactiveButtons.events.on('next', () =>
         {
-            if(this.state === Lab.STATE_OPEN)
+            if(this.state === LabArea.STATE_OPEN)
                 this.next()
         })
 
         this.game.inputs.interactiveButtons.events.on('open', () =>
         {
-            if(this.state === Lab.STATE_OPEN)
+            if(this.state === LabArea.STATE_OPEN)
                 this.url.open()
         })
 
         this.game.inputs.interactiveButtons.events.on('close', () =>
         {
-            if(this.state === Lab.STATE_OPEN)
+            if(this.state === LabArea.STATE_OPEN)
                 this.close()
         })
     }
@@ -215,7 +215,7 @@ export class Lab extends Area
 
             const debugUpdate = () =>
             {
-                if(this.state === Lab.STATE_OPEN || this.state === Lab.STATE_OPENING)
+                if(this.state === LabArea.STATE_OPEN || this.state === LabArea.STATE_OPENING)
                 {
                     this.shadeMix.images.mixUniform.value = this.shadeMix.images.max
                     this.shadeMix.texts.mixUniform.value = this.shadeMix.texts.max
@@ -310,7 +310,7 @@ export class Lab extends Area
         this.navigation.current = null
         this.navigation.next = null
         this.navigation.previous = null
-        this.navigation.direction = Lab.DIRECTION_NEXT
+        this.navigation.direction = LabArea.DIRECTION_NEXT
     }
 
     setImages()
@@ -428,7 +428,7 @@ export class Lab extends Area
         {
             let projectIndex = this.navigation.index
 
-            if(this.navigation.direction === Lab.DIRECTION_PREVIOUS)
+            if(this.navigation.direction === LabArea.DIRECTION_PREVIOUS)
                 projectIndex -= 1
             else
                 projectIndex += 1
@@ -514,7 +514,7 @@ export class Lab extends Area
 
             // Animate right away
             gsap.fromTo(this.images.animationProgress, { value: 0 }, { value: 1, duration: 1, ease: 'power2.inOut', overwrite: true })
-            this.images.animationDirection.value = this.navigation.direction === Lab.DIRECTION_NEXT ? 1 : -1
+            this.images.animationDirection.value = this.navigation.direction === LabArea.DIRECTION_NEXT ? 1 : -1
         }
     }
 
@@ -613,7 +613,7 @@ export class Lab extends Area
 
             this.title.status = 'hiding'
 
-            const rotationDirection = direction === Lab.DIRECTION_NEXT ? - 1 : 1
+            const rotationDirection = direction === LabArea.DIRECTION_NEXT ? - 1 : 1
 
             this.title.inner.rotation.x = 0
             gsap.to(this.title.inner.rotation, { x: Math.PI * rotationDirection, duration: 1, delay: 0, ease: 'power2.in', overwrite: true, onComplete: () =>
@@ -711,7 +711,7 @@ export class Lab extends Area
 
             this.url.status = 'hiding'
 
-            const rotationDirection = direction === Lab.DIRECTION_NEXT ? - 1 : 1
+            const rotationDirection = direction === LabArea.DIRECTION_NEXT ? - 1 : 1
 
             this.url.inner.rotation.x = 0
             gsap.to(this.url.inner.rotation, { x: Math.PI * rotationDirection, duration: 1, delay: 0.3, ease: 'power2.in', overwrite: true, onComplete: () =>
@@ -986,7 +986,7 @@ export class Lab extends Area
                 mini.group.scale.y = scale
 
                 mini.group.visible = scale > 0
-                mini.intersect.active = mini.group.visible && (this.state === Lab.STATE_OPEN || this.state === Lab.STATE_OPENING)
+                mini.intersect.active = mini.group.visible && (this.state === LabArea.STATE_OPEN || this.state === LabArea.STATE_OPENING)
 
                 if(mini.group.visible && !mini.startedLoading)
                 {
@@ -1054,7 +1054,7 @@ export class Lab extends Area
             paused: true,
             onRepeat: () =>
             {
-                if(this.state === Lab.STATE_CLOSED || this.state === Lab.STATE_CLOSING || !this.blackBoard.active)
+                if(this.state === LabArea.STATE_CLOSED || this.state === LabArea.STATE_CLOSING || !this.blackBoard.active)
                     this.blackBoard.timeline.pause()
             }
         })
@@ -1274,18 +1274,18 @@ export class Lab extends Area
 
     open()
     {
-        if(this.state === Lab.STATE_OPEN || this.state === Lab.STATE_OPENING)
+        if(this.state === LabArea.STATE_OPEN || this.state === LabArea.STATE_OPENING)
             return
 
         // State
-        this.state = Lab.STATE_OPENING
+        this.state = LabArea.STATE_OPENING
 
         if(this.stateTransition)
             this.stateTransition.kill()
 
         this.stateTransition = gsap.delayedCall(1.5, () =>
         {
-            this.state = Lab.STATE_OPEN
+            this.state = LabArea.STATE_OPEN
             this.stateTransition = null
         })
 
@@ -1325,18 +1325,18 @@ export class Lab extends Area
 
     close()
     {
-        if(this.state === Lab.STATE_CLOSED || this.state === Lab.STATE_CLOSING)
+        if(this.state === LabArea.STATE_CLOSED || this.state === LabArea.STATE_CLOSING)
             return
 
         // State
-        this.state = Lab.STATE_CLOSING
+        this.state = LabArea.STATE_CLOSING
 
         if(this.stateTransition)
             this.stateTransition.kill()
 
         this.stateTransition = gsap.delayedCall(1.5, () =>
         {
-            this.state = Lab.STATE_CLOSED
+            this.state = LabArea.STATE_CLOSED
             this.stateTransition = null
         })
 
@@ -1373,20 +1373,20 @@ export class Lab extends Area
 
     previous()
     {
-        if(this.state === Lab.STATE_CLOSED || this.state === Lab.STATE_CLOSING)
+        if(this.state === LabArea.STATE_CLOSED || this.state === LabArea.STATE_CLOSING)
             return
 
-        this.changeProject(this.navigation.index - 1, Lab.DIRECTION_PREVIOUS)
+        this.changeProject(this.navigation.index - 1, LabArea.DIRECTION_PREVIOUS)
 
         this.blackBoard.active = false
     }
 
     next()
     {
-        if(this.state === Lab.STATE_CLOSED || this.state === Lab.STATE_CLOSING)
+        if(this.state === LabArea.STATE_CLOSED || this.state === LabArea.STATE_CLOSING)
             return
 
-        this.changeProject(this.navigation.index + 1, Lab.DIRECTION_NEXT)
+        this.changeProject(this.navigation.index + 1, LabArea.DIRECTION_NEXT)
 
         this.blackBoard.active = false
     }
@@ -1407,7 +1407,7 @@ export class Lab extends Area
 
         // Direction
         if(direction === null)
-            direction = signedModDelta(loopIndex, this.navigation.index, labData.length) > 0 ? Lab.DIRECTION_PREVIOUS : Lab.DIRECTION_NEXT
+            direction = signedModDelta(loopIndex, this.navigation.index, labData.length) > 0 ? LabArea.DIRECTION_PREVIOUS : LabArea.DIRECTION_NEXT
 
         // Save
         this.navigation.index = loopIndex

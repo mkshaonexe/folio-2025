@@ -11,7 +11,7 @@ import { InputFlag } from '../../InputFlag.js'
 import { Area } from './Area.js'
 import { timeToRaceString, timeToReadableString } from '../../utilities/time.js'
 
-export default class Circuit extends Area
+export class CircuitArea extends Area
 {
     static STATE_PENDING = 1
     static STATE_STARTING = 2
@@ -31,7 +31,7 @@ export default class Circuit extends Area
             })
         }
 
-        this.state = Circuit.STATE_PENDING
+        this.state = CircuitArea.STATE_PENDING
 
         this.setStartPosition()
         this.setRoad()
@@ -284,7 +284,7 @@ export default class Circuit extends Area
             // Group > Follow car
             const target = new THREE.Vector3()
 
-            if(this.state === Circuit.STATE_PENDING)
+            if(this.state === CircuitArea.STATE_PENDING)
             {
                 target.x = this.timer.defaultPosition.x
                 target.y = 2.5
@@ -653,7 +653,7 @@ export default class Circuit extends Area
 
     respawn()
     {
-        if(this.state !== Circuit.STATE_RUNNING)
+        if(this.state !== CircuitArea.STATE_RUNNING)
             return
 
         // Player > Lock
@@ -1197,7 +1197,7 @@ export default class Circuit extends Area
         {
             event.preventDefault()
 
-            if(this.state === Circuit.STATE_RUNNING || this.state === Circuit.STATE_STARTING)
+            if(this.state === CircuitArea.STATE_RUNNING || this.state === CircuitArea.STATE_STARTING)
                 this.finish(true)
             
             this.game.modals.close()
@@ -1324,14 +1324,14 @@ export default class Circuit extends Area
 
     restart()
     {
-        if(this.state === Circuit.STATE_STARTING)
+        if(this.state === CircuitArea.STATE_STARTING)
             return
 
         // Timer
         this.timer.end()
             
         // State
-        this.state = Circuit.STATE_STARTING
+        this.state = CircuitArea.STATE_STARTING
 
         // Interactive point
         this.interactivePoint.hide()
@@ -1412,7 +1412,7 @@ export default class Circuit extends Area
             this.game.overlay.hide(() =>
             {
                 // State
-                this.state = Circuit.STATE_RUNNING
+                this.state = CircuitArea.STATE_RUNNING
 
                 // Start animation
                 this.startAnimation.start(() =>
@@ -1474,11 +1474,11 @@ export default class Circuit extends Area
     finish(forced = false)
     {
         // Not running
-        if(this.state !== Circuit.STATE_RUNNING)
+        if(this.state !== CircuitArea.STATE_RUNNING)
             return
             
         // State
-        this.state = Circuit.STATE_ENDING
+        this.state = CircuitArea.STATE_ENDING
         
         // Timer
         this.timer.end()
@@ -1495,7 +1495,7 @@ export default class Circuit extends Area
             this.game.overlay.show(() =>
             {
                 // State
-                this.state = Circuit.STATE_PENDING
+                this.state = CircuitArea.STATE_PENDING
 
                 // Interactive point
                 this.interactivePoint.show()
@@ -1560,7 +1560,7 @@ export default class Circuit extends Area
                 this.game.overlay.hide(() =>
                 {
                     // State
-                    this.state = Circuit.STATE_PENDING
+                    this.state = CircuitArea.STATE_PENDING
                 })
             })
         })
@@ -1568,7 +1568,7 @@ export default class Circuit extends Area
 
     update()
     {
-        if(this.state === Circuit.STATE_RUNNING)
+        if(this.state === CircuitArea.STATE_RUNNING)
         {
             // Checkpoints
             for(const checkpoint of this.checkpoints.items)
