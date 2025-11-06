@@ -175,9 +175,9 @@ export class Audio
                     const delta = volume - item.volume
 
                     if(delta > 0)
-                        item.volume += delta * this.game.ticker.delta * 40
+                        item.volume += delta * this.game.ticker.deltaScaled * 20
                     else
-                        item.volume += delta * this.game.ticker.delta * 10
+                        item.volume += delta * this.game.ticker.deltaScaled * 5
                     
                     item.rate = 0.8
                 }
@@ -213,12 +213,12 @@ export class Audio
                     const boosting = this.game.player.boosting + 1
                     const volume = Math.max(0.05, accelerating * boosting * 0.8)
                     const delta = volume - item.volume
-                    const easing = delta > 0 ? 20 : 5
+                    const easing = delta > 0 ? 10 : 2.5
                     
-                    item.volume += delta * this.game.ticker.delta * easing
+                    item.volume += delta * this.game.ticker.deltaScaled * easing
 
                     const rate = remapClamp(accelerating * boosting, 0, 1, 0.6, 1.1)
-                    item.rate += (rate - item.rate) * this.game.ticker.delta * 10
+                    item.rate += (rate - item.rate) * this.game.ticker.deltaScaled * 5
                 }
             }
         )
@@ -240,12 +240,12 @@ export class Audio
                     const speedEffect = clamp(this.game.physicalVehicle.xzSpeed * 0.1, 0, 1)
                     const volume = speedEffect * 0.3
                     const delta = volume - item.volume
-                    const easing = delta > 0 ? 20 : 5
+                    const easing = delta > 0 ? 10 : 2.5
                     
-                    item.volume += delta * this.game.ticker.delta * easing
+                    item.volume += delta * this.game.ticker.deltaScaled * easing
 
                     const rate = remapClamp(speedEffect, 0, 1, 1, 2)
-                    item.rate += (rate - item.rate) * this.game.ticker.delta * 10
+                    item.rate += (rate - item.rate) * this.game.ticker.deltaScaled * 5
                 }
             }
         )
@@ -253,7 +253,7 @@ export class Audio
         this.register(
             'energy',
             {
-                path: 'sounds/energy/Energy_-_force_field_15_loop.mp3',
+                path: 'sounds/energy/Energy_-_force_field_8_loop.mp3',
                 autoplay: true,
                 loop: true,
                 volume: 0,
@@ -263,12 +263,12 @@ export class Audio
                     const boosting = this.game.player.boosting
                     const volume = accelerating * boosting * 0.3
                     const delta = volume - item.volume
-                    const easing = delta > 0 ? 20 : 5
+                    const easing = delta > 0 ? 10 : 1
                     
-                    item.volume += delta * this.game.ticker.delta * easing
+                    item.volume += delta * this.game.ticker.deltaScaled * easing
 
-                    const rate = 1 + Math.abs(this.game.player.accelerating) * 0.5
-                    item.rate += (rate - item.rate) * this.game.ticker.delta * 10
+                    const rate = 0.95 + Math.abs(this.game.player.accelerating) * 0.3
+                    item.rate += (rate - item.rate) * this.game.ticker.deltaScaled * 5
                 }
             }
         )
@@ -286,9 +286,9 @@ export class Audio
                     const boosting = this.game.player.boosting
                     const volume = accelerating * boosting * 0.2
                     const delta = volume - item.volume
-                    const easing = delta > 0 ? 20 : 5
+                    const easing = delta > 0 ? 10 : 2.5
                     
-                    item.volume += delta * this.game.ticker.delta * easing
+                    item.volume += delta * this.game.ticker.deltaScaled * easing
                 }
             }
         )
