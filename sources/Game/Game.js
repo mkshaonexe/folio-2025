@@ -77,6 +77,7 @@ export class Game
         this.server = new Server()
         this.ticker = new Ticker()
         this.time = new Time()
+        this.audio = new Audio()
         this.notifications = new Notifications()
         this.inputs = new Inputs([], [ 'intro' ])
         this.rayCursor = new RayCursor()
@@ -159,7 +160,6 @@ export class Game
         this.closingManager = new ClosingManager()
         this.konamiCode = new KonamiCode()
         this.achievements = new Achievements()
-        this.audio = new Audio()
         // this.monitoring = new Monitoring()
         this.world.init(1)
 

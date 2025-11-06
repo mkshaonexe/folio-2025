@@ -55,6 +55,23 @@ export class ExplosiveCrates
             i++
         }
 
+        // Click sound
+        this.sound = this.game.audio.register(
+            'click',
+            {
+                path: 'sounds/clicks/Source Metal Clicks Delicate Light Sharp Clip Mid 07.mp3',
+                autoplay: false,
+                loop: false,
+                volume: 0.4,
+                antiSpam: 0.1,
+                playBinding: (item) =>
+                {
+                    item.volume = 0.4 + Math.random() * 0.2
+                    item.rate = 0.7 + Math.random() * 1.3
+                }
+            }
+        )
+
         this.game.ticker.events.on('tick', () =>
         {
             this.update()
@@ -71,6 +88,8 @@ export class ExplosiveCrates
             {
                 if(!isSleeping)
                 {
+                    this.sound.play()
+
                     gsap.delayedCall(0.4, () =>
                     {
                         // Explode

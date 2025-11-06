@@ -10,6 +10,22 @@ export class Explosions
         this.game = new Game()
 
         this.events = new Events()
+
+        this.sound = this.game.audio.register(
+            'explosion',
+            {
+                path: 'sounds/explosions/Explosion with Debris 01.wav',
+                autoplay: false,
+                loop: false,
+                volume: 0.4,
+                antiSpam: 0.2,
+                playBinding: (item) =>
+                {
+                    item.volume = 0.35 + Math.random() * 0.4
+                    item.rate = 0.6 + Math.random() * 4
+                }
+            }
+        )
     }
 
     explode(coordinates, radius = 7, strength = 4, vehicleOnly = false, bulletTimeStrengthThreshold = 3)
@@ -70,5 +86,7 @@ export class Explosions
                 if(object.physical && object.physical.type === 'dynamic' && object.physical.body.isEnabled())
                     applyPhysicsExplosion(object.physical)
             })
+
+        this.sound.play()
     }
 }

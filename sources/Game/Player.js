@@ -93,6 +93,22 @@ export class Player
         })
 
         // Suspensions
+        const suspensionsSound = this.game.audio.register(
+            'suspensions',
+            {
+                path: 'sounds/suspensions/Grotto Gas Canister 4.mp3',
+                autoplay: false,
+                loop: false,
+                volume: 0.4,
+                antiSpam: 0.1,
+                playBinding: (item, count) =>
+                {
+                    item.volume = 0.1 + count * 0.05
+                    item.rate = 1.2 + Math.random() * 0.8
+                }
+            }
+        )
+
         const suspensionsUpdate = () =>
         {
             if(this.state !== Player.STATE_DEFAULT)
@@ -110,11 +126,19 @@ export class Player
             for(let i = 0; i < 4; i++)
                 this.suspensions[i] = activeSuspensions[i] ? activeState : 'low'
 
-            if(
-                (activeSuspensions[0] || activeSuspensions[1] || activeSuspensions[2] || activeSuspensions[3]) && // Any suspension
-                !this.game.inputs.actions.get('suspensions').active // Not a jump
-            )
-                this.game.achievements.addProgress('suspensions')
+            const activeCount = activeSuspensions[0] + activeSuspensions[1] + activeSuspensions[2] + activeSuspensions[3]
+            
+
+            if(activeCount)
+            {
+                // Sound
+                suspensionsSound.play(activeCount)
+
+                // Not a jump => Achievement
+                if(!this.game.inputs.actions.get('suspensions').active)
+                    this.game.achievements.addProgress('suspensions')
+            }
+                
         }
 
         this.game.inputs.events.on('suspensions', suspensionsUpdate)
