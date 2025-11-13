@@ -30,6 +30,7 @@ export class InteractivePoints
         this.activeItem = null
         this.revealed = false
 
+        this.setSounds()
         this.setGeometries()
         this.setMaterials()
         this.setInputs()
@@ -37,6 +38,25 @@ export class InteractivePoints
         this.game.ticker.events.on('tick', () =>
         {
             this.update()
+        })
+    }
+
+    setSounds()
+    {
+        this.sounds = {}
+
+        this.sounds.reveal = this.game.audio.register({
+            group: 'reveal',
+            path: 'sounds/paper/PaperMovement_fNAyV_01-3.mp3',
+            autoplay: false,
+            volume: 0.25
+        })
+
+        this.sounds.conceal = this.game.audio.register({
+            group: 'reveal',
+            path: 'sounds/paper/PaperMovement_fNAyV_01-2.mp3',
+            autoplay: false,
+            volume: 0.25
         })
     }
 
@@ -395,6 +415,9 @@ export class InteractivePoints
 
             gsap.to(labelOffset, { value: 0, ease: 'power2.out', duration: 0.6, delay: 0.2, overwrite: true })
 
+            // Reveal
+            this.sounds.reveal.play()
+
             // Callback
             if(typeof item.revealCallback === 'function')
                 item.revealCallback()
@@ -423,6 +446,9 @@ export class InteractivePoints
             gsap.to(key.scale, { x: 0, y: 0, z: 0, ease: 'power2.in', duration: 0.6, overwrite: true })
 
             gsap.to(labelOffset, { value: align === InteractivePoints.ALIGN_LEFT ? - 1 : 1, ease: 'power2.in', duration: 0.6, overwrite: true })
+
+            // Reveal
+            this.sounds.conceal.play()
 
             // Callback
             if(typeof item.concealCallback === 'function')

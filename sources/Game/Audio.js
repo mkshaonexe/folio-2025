@@ -150,10 +150,10 @@ export class Audio
         this.playlist.current = null
         
         const paths = [
-            'sounds/musics/Healing Native Flute 01.mp3',
-            'sounds/musics/Moonglow.mp3',
-            'sounds/musics/omaha_main-full.mp3',
             'sounds/musics/scarborough-fair-dance_stem-04.mp3',
+            'sounds/musics/Moonglow.mp3',
+            'sounds/musics/Healing Native Flute 01.mp3',
+            'sounds/musics/omaha_main-full.mp3',
         ]
         for(const path of paths)
         {
@@ -198,7 +198,7 @@ export class Audio
             this.playlist.current.sound.play()
         }
 
-        // this.playlist.next()
+        this.playlist.next()
     }
 
     setAmbiants()

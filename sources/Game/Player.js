@@ -56,7 +56,7 @@ export class Player
     {
         this.sounds = {}
         this.sounds.suspensions = this.game.audio.register({
-            path: 'sounds/suspensions/Robotic_Lifeforms_2_-_Air_Source_-_Piston_Studio_Chair_07.mp3',
+            path: 'sounds/vehicle/suspensions/Robotic_Lifeforms_2_-_Air_Source_-_Piston_Studio_Chair_07.mp3',
             autoplay: false,
             loop: false,
             volume: 0.4,
@@ -69,7 +69,7 @@ export class Player
         })
         this.sounds.honk = this.game.audio.register(
         {
-            path: 'sounds/honk/Car Horn Long 4.mp3',
+            path: 'sounds/vehicle/honk/Car Horn Long 4.mp3',
             autoplay: true,
             loop: true,
             volume: 0.4,
@@ -80,7 +80,7 @@ export class Player
             }
         })
         this.sounds.spring1 = this.game.audio.register({
-            path: 'sounds/springs/HandleSqueak_BW.60329.mp3',
+            path: 'sounds/vehicle/springs/HandleSqueak_BW.60329.mp3',
             autoplay: false,
             loop: false,
             volume: 0.4,
@@ -92,7 +92,7 @@ export class Player
             }
         })
         this.sounds.spring2 = this.game.audio.register({
-            path: 'sounds/springs/SpringMetalMovements_1u54Y_01.mp3',
+            path: 'sounds/vehicle/springs/SpringMetalMovements_1u54Y_01.mp3',
             autoplay: false,
             loop: false,
             volume: 0.4,
@@ -104,27 +104,16 @@ export class Player
             }
         })
         this.sounds.respawn = this.game.audio.register({
-            path: 'sounds/tears/Napkin Tear 2.mp3',
+            path: 'sounds/swoosh/Swoosh 02.mp3',
             autoplay: false,
             loop: false,
-            volume: 0.15,
-            onPlay: (item, count) =>
-            {
-                // item.volume = 0.05 + count * 0.1
-                // item.rate = 0.9 + Math.random() * 0.4
-            }
+            volume: 0.25
         })
         this.sounds.respawnReverse = this.game.audio.register({
-            path: 'sounds/tears/Napkin Tear 2-reverse.mp3',
+            path: 'sounds/swoosh/Swoosh 05.mp3',
             autoplay: false,
             loop: false,
-            volume: 0.15,
-            rate: 0.8,
-            onPlay: (item, count) =>
-            {
-                // item.volume = 0.05 + count * 0.1
-                // item.rate = 0.9 + Math.random() * 0.4
-            }
+            volume: 0.25
         })
 
         // Wheels on floor
@@ -132,7 +121,7 @@ export class Player
             // Default pebbles
             this.game.audio.register({
                 group: 'wheelsOnFloor',
-                path: 'sounds/floor/wheels-on-pebbles-road.mp3',
+                path: 'sounds/vehicle/floor/wheels-on-pebbles-road.mp3',
                 autoplay: true,
                 loop: true,
                 volume: 0,
@@ -148,7 +137,7 @@ export class Player
             // Brake pebbles
             this.game.audio.register({
                 group: 'wheelsOnFloor',
-                path: 'sounds/floor/Source Stone Loop Small Rubbing Pebbles On Concrete 02.mp3',
+                path: 'sounds/vehicle/floor/Source Stone Loop Small Rubbing Pebbles On Concrete 02.mp3',
                 autoplay: true,
                 loop: true,
                 volume: 0,
@@ -176,7 +165,7 @@ export class Player
         {
             // Engine
             this.game.audio.register({
-                path: 'sounds/engine/muscle car engine loop idle.mp3',
+                path: 'sounds/vehicle/engine/muscle car engine loop idle.mp3',
                 autoplay: true,
                 loop: true,
                 volume: 0,
@@ -197,7 +186,7 @@ export class Player
 
             // Spin and wind
             this.game.audio.register({
-                path: 'sounds/spin/41051 Glass stone turning loop 09-full.mp3',
+                path: 'sounds/vehicle/spin/41051 Glass stone turning loop 09-full.mp3',
                 autoplay: true,
                 loop: true,
                 volume: 0,
@@ -218,7 +207,7 @@ export class Player
 
         // Boost
         this.game.audio.register({
-            path: 'sounds/energy/Energy_-_force_field_8_loop.mp3',
+            path: 'sounds/vehicle/energy/Energy_-_force_field_8_loop.mp3',
             autoplay: true,
             loop: true,
             volume: 0,
@@ -464,19 +453,19 @@ export class Player
 
     respawn(respawnName = null, callback = null)
     {
-        gsap.delayedCall(0.2, () =>
-        {
+        // gsap.delayedCall(0.2, () =>
+        // {
             this.sounds.respawn.play()
-        })
+        // })
         this.game.overlay.show(() =>
         {
             if(typeof callback === 'function')
                 callback()
             
-            gsap.delayedCall(0.8, () =>
-            {
+            // gsap.delayedCall(0.8, () =>
+            // {
                 this.sounds.respawnReverse.play()
-            })
+            // })
 
             // Find respawn
             let respawn = respawnName ? this.game.respawns.getByName(respawnName) : this.game.respawns.getClosest(this.position)

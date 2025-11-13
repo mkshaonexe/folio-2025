@@ -484,7 +484,7 @@ export class Achievements
         })
 
         this.sounds.paint = this.game.audio.register({
-            path: 'sounds/paint/Spray Paint 14.mp3',
+            path: 'sounds/vehicle/paint/Spray Paint 14.mp3',
             autoplay: false,
             loop: false,
             volume: 0.4,
