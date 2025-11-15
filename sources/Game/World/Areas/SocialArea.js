@@ -190,7 +190,6 @@ export class SocialArea extends Area
     {
         this.statue = {}
         this.statue.body = this.references.get('statue')[0].userData.object.physical.body
-        this.statue.isSleeping = true
         this.statue.down = false
     }
 

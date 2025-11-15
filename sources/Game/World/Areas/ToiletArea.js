@@ -22,7 +22,6 @@ export class ToiletArea extends Area
     {
         this.cabin = {}
         this.cabin.body = this.references.get('cabin')[0].userData.object.physical.body
-        this.cabin.isSleeping = true
         this.cabin.down = false
     }
 

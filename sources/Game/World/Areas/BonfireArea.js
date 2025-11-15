@@ -109,6 +109,10 @@ export class BonfireArea extends Area
                     // Objects reset
                     this.game.objects.resetAll()
 
+                    // Explosive crates
+                    if(this.game.world.explosiveCrates)
+                        this.game.world.explosiveCrates.reset()
+
                     // Bowling
                     if(this.game.world.areas.bowling)
                         this.game.world.areas.bowling.restart()

@@ -33,7 +33,7 @@ export class ExplosiveCrates
         {
             const crate = {}
             crate.id = i
-            crate.isSleeping = true
+            crate.exploded = false
             crate.reference = reference.clone()
             crate.object = this.game.objects.add(
                 {
@@ -47,7 +47,12 @@ export class ExplosiveCrates
                     mass: 0.02,
                     sleeping: true,
                     colliders: [ { shape: 'cuboid', parameters: [ 0.5, 0.5, 0.5 ], category: 'object' } ],
-                    waterGravityMultiplier: - 1
+                    waterGravityMultiplier: - 1,
+                    contactThreshold: 0,
+                    onCollision: () =>
+                    {
+                        this.explode(crate)
+                    }
                 },
             )
 
@@ -57,11 +62,6 @@ export class ExplosiveCrates
         }
 
         this.setSounds()
-
-        this.game.ticker.events.on('tick', () =>
-        {
-            this.update()
-        }, 3)
     }
 
     setSounds()
@@ -113,42 +113,38 @@ export class ExplosiveCrates
         }
     }
 
-    update()
+    explode(crate)
     {
-        for(const crate of this.items)
+        if(crate.exploded)
+            return
+
+        crate.exploded = true
+
+        this.sounds.triggerClick.play(crate.reference.position)
+
+        gsap.delayedCall(0.4, () =>
         {
-            // Sleeping state changed
-            const isSleeping = crate.object.physical.body.isSleeping() || !crate.object.physical.body.isEnabled()
-            if(crate.isSleeping !== isSleeping)
-            {
-                if(!isSleeping)
-                {
-                    this.sounds.triggerClick.play(crate.reference.position)
+            // Sound
+            this.sounds.explosions[Math.floor(Math.random() * this.sounds.explosions.length)].play(crate.reference.position)
 
-                    gsap.delayedCall(0.4, () =>
-                    {
-                        // Sound
-                        this.sounds.explosions[Math.floor(Math.random() * this.sounds.explosions.length)].play(crate.reference.position)
+            // Explode
+            this.game.world.fireballs.create(crate.object.physical.body.translation())
 
-                        // Explode
-                        this.game.world.fireballs.create(crate.object.physical.body.translation())
+            // Disable
+            this.game.objects.disable(crate.object)
+            crate.object.visual.object3D.position.y += 100 // Hide the instance reference
 
-                        // Disable
-                        this.game.objects.disable(crate.object)
-                        crate.object.visual.object3D.position.y += 100 // Hide the instance reference
-
-                        // Achievements
-                        this.game.achievements.setProgress('explosiveCrates', crate.id)
-                    })
-                }
-                crate.isSleeping = isSleeping
-            }
-        }
+            // Achievements
+            this.game.achievements.setProgress('explosiveCrates', crate.id)
+        })
     }
 
     reset()
     {
         for(const crate of this.items)
+        {
             this.game.objects.resetObject(crate.object)
+            crate.exploded = false
+        }
     }
 }
