@@ -1,6 +1,6 @@
 import * as THREE from 'three/webgpu'
 import { Game } from '../../Game.js'
-import { attribute, clamp, color, float, Fn, instancedArray, luminance, max, mix, smoothstep, step, texture, uniform, uv, vec2, vec3, vec4 } from 'three/tsl'
+import { attribute, clamp, color, float, Fn, instancedArray, instanceIndex, luminance, max, min, mix, smoothstep, step, texture, uniform, uv, varying, vec2, vec3, vec4 } from 'three/tsl'
 import gsap from 'gsap'
 import { alea } from 'seedrandom'
 import { Area } from './Area.js'
@@ -28,6 +28,7 @@ export class AltarArea extends Area
         this.setSounds()
         this.setBeam()
         this.setBeamParticles()
+        this.setGlyphs()
         this.setCounter()
         this.setDeathZone()
         this.setSkullEyes()
@@ -82,7 +83,7 @@ export class AltarArea extends Area
     {
         const radius = 2.5
         this.height = 6
-        this.beamAttenuation = uniform(1)
+        this.beamAttenuation = uniform(2)
 
         // Cylinder
         const cylinderGeometry = new THREE.CylinderGeometry(radius, radius, this.height, 32, 1, true)
@@ -156,7 +157,7 @@ export class AltarArea extends Area
                 {
                     gsap.to(
                         this.beamAttenuation,
-                        { value: 1, ease: 'power2.inOut', duration: 5, delay: 1 },
+                        { value: 2, ease: 'power2.in', duration: 3 },
                     )
                 } },
             )
@@ -243,6 +244,73 @@ export class AltarArea extends Area
                 { value: 1, ease: 'linear', duration: 3 },
             )
         }
+    }
+
+    setGlyphs()
+    {
+        const count = 40
+
+        const positions = new Float32Array(count * 3)
+        const speeds = new Float32Array(count)
+        
+        for(let i = 0; i < count; i++)
+        {
+            const angle = Math.PI * 2 * Math.random()
+            const elevation = Math.random() * 5
+            const radius = Math.random() * 8
+            positions[i * 3 + 0] = Math.sin(angle) * radius
+            positions[i * 3 + 1] = elevation
+            positions[i * 3 + 2] = Math.cos(angle) * radius
+            
+            speeds[i] = 0.2 + Math.random() * 0.8
+        }
+
+        const positionAttribute = instancedArray(positions, 'vec3').toAttribute()
+        const speedAttribute = instancedArray(speeds, 'float').toAttribute()
+
+        const material = new THREE.SpriteNodeMaterial({ transparent: true })
+        
+        const progressVarying = varying(float(0))
+
+        material.positionNode = Fn(() =>
+        {
+            progressVarying.assign(this.game.ticker.elapsedScaledUniform.mul(0.05).add(float(instanceIndex).div(count)).fract())
+
+            const newPosition = positionAttribute.toVar()
+            newPosition.y.addAssign(progressVarying.mul(speedAttribute))
+            return newPosition
+        })()
+
+        material.scaleNode = Fn(() =>
+        {
+            const scale = min(
+                progressVarying.remapClamp(0, 0.1, 0, 1),
+                progressVarying.remapClamp(0.7, 0.8, 1, 0),
+                1
+            )
+            return scale.mul(0.2)
+        })()
+
+        material.outputNode = Fn(() =>
+        {
+            // Glyph
+            const glyphUv = uv().toVar()
+            glyphUv.x.addAssign(instanceIndex)
+            glyphUv.x.divAssign(32)
+            const glyph = texture(this.game.resources.achievementsGlyphsTexture, glyphUv).r
+            glyph.lessThan(0.5).discard()
+
+            // return emissiveMaterial.outputNode
+            return vec4(this.color.mul(this.emissive), 1)
+        })()
+
+        const mesh = new THREE.Sprite(material)
+        mesh.renderOrder = 3
+        mesh.position.x = this.position.x
+        mesh.position.y = 0
+        mesh.position.z = this.position.z
+        mesh.count = count
+        this.game.scene.add(mesh)
     }
 
     setCounter()
