@@ -151,7 +151,6 @@ export class Menu
         
         // Sound
         this.game.audio.groups.get('click').play(true)
-        // console.log(this.game.audio.groups.get('click'))
 
         // Leaving item
         if(this.current)
@@ -190,7 +189,7 @@ export class Menu
         this.current.events.trigger('open')
         
         // Need open
-        if(this.state === Menu.CLOSED)
+        if(this.state === Menu.CLOSED || this.state === Menu.CLOSING)
         {
             this.state = Menu.OPENING
 
