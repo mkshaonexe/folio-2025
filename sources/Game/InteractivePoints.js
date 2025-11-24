@@ -33,6 +33,7 @@ export class InteractivePoints
         this.setSounds()
         this.setGeometries()
         this.setMaterials()
+        this.setKeyIcon()
         this.setInputs()
 
         this.game.ticker.events.on('tick', () =>
@@ -90,6 +91,72 @@ export class InteractivePoints
         }
     }
 
+    setKeyIcon()
+    {
+        // Material
+        const material = new THREE.MeshLambertNodeMaterial({ transparent: true, depthTest: true })
+
+        const iconOutput = Fn(([iconTexture]) =>
+        {
+            // Discard
+            iconTexture.r.lessThan(0.5).discard()
+
+            return vec4(vec3(this.frontColor), 1)
+        })
+
+        material.outputNode = iconOutput(texture(this.game.resources.interactivePointsKeyIconEnterTexture, uv()))
+
+        // Mesh
+        const mesh = new THREE.Mesh(
+            this.geometries.plane,
+            material
+        )
+        mesh.renderOrder = 5
+        mesh.scale.setScalar(0)
+        mesh.position.z = 0.01
+        mesh.visible = false
+
+        this.game.inputs.gamepad.events.on('typeChange', () =>
+        {
+            if(this.game.inputs.mode === Inputs.MODE_GAMEPAD)
+            {
+                let iconTexture = this.game.resources.interactivePointsKeyIconCrossTexture
+                
+                if(this.game.inputs.gamepad.type === 'xbox')
+                     iconTexture = this.game.resources.interactivePointsKeyIconATexture
+
+                material.outputNode = iconOutput(texture(iconTexture, uv()))
+                material.needsUpdate = true
+            }
+        })
+
+        this.game.inputs.events.on('modeChange', () =>
+        {
+            if(this.game.inputs.mode === Inputs.MODE_GAMEPAD)
+            {
+                let iconTexture = this.game.resources.interactivePointsKeyIconCrossTexture
+                
+                if(this.game.inputs.gamepad.type === 'xbox')
+                     iconTexture = this.game.resources.interactivePointsKeyIconATexture
+
+                material.outputNode = iconOutput(texture(iconTexture, uv()))
+                material.needsUpdate = true
+            }
+            else if(this.game.inputs.mode === Inputs.MODE_MOUSEKEYBOARD)
+            {
+                material.outputNode = iconOutput(texture(this.game.resources.interactivePointsKeyIconEnterTexture, uv()))
+                material.needsUpdate = true
+            }
+            else if(this.game.inputs.mode === Inputs.MODE_TOUCH)
+            {
+                mesh.visible = false
+            }
+        })
+
+        // Save
+        this.keyIcon = mesh
+    }
+
     setInputs()
     {
         this.game.inputs.events.on('interact', (action) =>
@@ -141,7 +208,7 @@ export class InteractivePoints
          * Diamond
          */
         // Material
-        const diamondMaterial = new THREE.MeshLambertNodeMaterial({ transparent: false, depthTest: true })
+        const diamondMaterial = new THREE.MeshLambertNodeMaterial({ transparent: true, depthTest: true })
         materials.push(diamondMaterial)
 
         const threshold = uniform(0)
@@ -177,76 +244,6 @@ export class InteractivePoints
         diamond.rotation.z = Math.PI * 0.25
         diamond.visible = false
         group.add(diamond)
-
-        /**
-         * Key
-         */
-        // Material
-        const keyMaterial = new THREE.MeshLambertNodeMaterial({ transparent: false, depthTest: true })
-        materials.push(keyMaterial)
-
-        const keyOutput = Fn(([keyTexture]) =>
-        {
-            const key = keyTexture.r
-            
-            // Discard
-            key.lessThan(0.5).discard()
-
-            return vec4(vec3(this.frontColor), 1)
-        })
-
-        keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactivePointsKeyIconEnterTexture, uv()))
-
-        // Mesh
-        const key = new THREE.Mesh(
-            this.geometries.plane,
-            keyMaterial
-        )
-        key.renderOrder = 5
-        key.scale.setScalar(0)
-        key.position.z = 0.01
-        key.visible = false
-        group.add(key)
-
-        this.game.inputs.gamepad.events.on('typeChange', () =>
-        {
-            if(this.game.inputs.mode === Inputs.MODE_GAMEPAD)
-            {
-                let keyIconTexture = this.game.resources.interactivePointsKeyIconCrossTexture
-                
-                if(this.game.inputs.gamepad.type === 'xbox')
-                     keyIconTexture = this.game.resources.interactivePointsKeyIconATexture
-
-                keyMaterial.outputNode = keyOutput(texture(keyIconTexture, uv()))
-                keyMaterial.needsUpdate = true
-                group.add(key)
-            }
-        })
-
-        this.game.inputs.events.on('modeChange', () =>
-        {
-            if(this.game.inputs.mode === Inputs.MODE_GAMEPAD)
-            {
-                let keyIconTexture = this.game.resources.interactivePointsKeyIconCrossTexture
-                
-                if(this.game.inputs.gamepad.type === 'xbox')
-                     keyIconTexture = this.game.resources.interactivePointsKeyIconATexture
-
-                keyMaterial.outputNode = keyOutput(texture(keyIconTexture, uv()))
-                keyMaterial.needsUpdate = true
-                group.add(key)
-            }
-            else if(this.game.inputs.mode === Inputs.MODE_MOUSEKEYBOARD)
-            {
-                keyMaterial.outputNode = keyOutput(texture(this.game.resources.interactivePointsKeyIconEnterTexture, uv()))
-                keyMaterial.needsUpdate = true
-                group.add(key)
-            }
-            else if(this.game.inputs.mode === Inputs.MODE_TOUCH)
-            {
-                group.remove(key)
-            }
-        })
 
         /**
          * Label
@@ -290,7 +287,7 @@ export class InteractivePoints
         labelTexture.needsUpdate = true
 
         // Material
-        const labelMaterial = new THREE.MeshLambertNodeMaterial({ transparent: false, depthTest: true })
+        const labelMaterial = new THREE.MeshLambertNodeMaterial({ transparent: true, depthTest: true })
         materials.push(labelMaterial)
 
         const labelOffset = uniform(1)
@@ -350,7 +347,7 @@ export class InteractivePoints
          */
         item.intersect = this.game.rayCursor.addIntersect({
             active: false,
-            shape: new THREE.Sphere(newPosition, 1),
+            shape: new THREE.Sphere(newPosition, 0.75),
             onClick: () =>
             {
                 if(item.state !== InteractivePoints.STATE_HIDDEN)
@@ -361,12 +358,27 @@ export class InteractivePoints
             onEnter: () =>
             {
                 if(item.state !== InteractivePoints.STATE_HIDDEN)
+                {
+                    if(item !== this.activeItem && this.activeItem !== null)
+                    {
+                        this.activeItem.conceal()
+                    }
+
+                    this.activeItem = item
                     item.reveal()
+                }
+
             },
             onLeave: () =>
             {
-                if(item.state !== InteractivePoints.STATE_HIDDEN)
+                if(
+                    this.activeItem === item &&
+                    item.state !== InteractivePoints.STATE_HIDDEN
+                )
+                {
                     item.conceal()
+                    this.activeItem = null
+                }
             }
         })
 
@@ -388,11 +400,14 @@ export class InteractivePoints
             gsap.to(lineOffset, { value: 0.175, ease: 'back.in(4.5)', duration: 0.6, overwrite: true, onComplete: () =>
             {
                 diamond.visible = false
-                key.visible = false
+                // key.visible = false
                 label.visible = false
             } })
 
-            gsap.to(key.scale, { x: 0, y: 0, z: 0, ease: 'back.in(4.5)', duration: 0.6, overwrite: true })
+            gsap.to(this.keyIcon.scale, { x: 0, y: 0, z: 0, ease: 'power2.in', duration: 0.6, overwrite: true, onComplete: () =>
+            {
+                this.keyIcon.visible = false
+            } })
 
             gsap.to(labelOffset, { value: 1, ease: 'power2.in', duration: 0.6, overwrite: true })
 
@@ -416,15 +431,21 @@ export class InteractivePoints
             item.intersect.active = true
 
             diamond.visible = true
-            key.visible = true
             label.visible = true
+
+            group.add(this.keyIcon)
 
             gsap.to(threshold, { value: 0.5, ease: 'elastic.out(1.3,0.4)', duration: 1.5, overwrite: true })
             gsap.to(lineThickness, { value: 0.075, ease: 'elastic.out(1.3,0.4)', duration: 1.5, overwrite: true })
             gsap.to(lineOffset, { value: 0.150, ease: 'elastic.out(1.3,0.4)', duration: 1.5, overwrite: true })
             
-            gsap.to(key.scale, { x: 0.25, y: 0.25, z: 0.25, ease: 'elastic.out(1.3,0.8)', duration: 1.5, delay: 0.6, overwrite: true })
-
+            if(this.game.inputs.mode !== Inputs.MODE_TOUCH)
+            {
+                this.keyIcon.visible = true
+                this.keyIcon.scale.setScalar(0)
+                gsap.to(this.keyIcon.scale, { x: 0.25, y: 0.25, z: 0.25, ease: 'elastic.out(1.3,0.8)', duration: 1.5, delay: 0.6, overwrite: true })
+            }
+            
             gsap.to(labelOffset, { value: 0, ease: 'power2.out', duration: 0.6, delay: 0.2, overwrite: true })
 
             // Materials
@@ -461,21 +482,26 @@ export class InteractivePoints
             gsap.to(lineThickness, { value: 0.150, ease: ease, duration: 0.6, delay: 0.2, overwrite: true })
             gsap.to(lineOffset, { value: 0.175, ease: ease, duration: 0.6, delay: 0.2, overwrite: true, onComplete: () =>
             {
-                key.visible = false
                 label.visible = false
+
+                // Materials
+                for(const material of item.materials)
+                {
+                    material.depthTest = true
+                    material.needsUpdate = true
+                }
             } })
 
-            gsap.to(key.scale, { x: 0, y: 0, z: 0, ease: 'power2.in', duration: 0.6, overwrite: true })
+            if(this.activeItem === item)
+            {
+                gsap.to(this.keyIcon.scale, { x: 0, y: 0, z: 0, ease: 'power2.in', duration: 0.6, overwrite: true, onComplete: () =>
+                {
+                    this.keyIcon.visible = false
+                } })
+            }
 
             gsap.to(labelOffset, { value: align === InteractivePoints.ALIGN_LEFT ? - 1 : 1, ease: 'power2.in', duration: 0.6, overwrite: true })
             
-            // Materials
-            for(const material of item.materials)
-            {
-                material.depthTest = true
-                material.needsUpdate = true
-            }
-
             // Reveal
             this.sounds.conceal.play()
 
@@ -524,7 +550,7 @@ export class InteractivePoints
                 item.state = state
                 item.intersect.active = false
                 diamond.visible = true
-                key.visible = true
+                // key.visible = true
                 threshold.value = 0.25
             }
         }
@@ -546,57 +572,67 @@ export class InteractivePoints
 
     update()
     {
-        this.playerPosition.value.copy(this.game.player.position2)
+        // Player testing (not cursor intersect)
+        const distanceTraveled = Math.hypot(
+            this.playerPosition.value.x - this.game.player.position2.x,
+            this.playerPosition.value.y - this.game.player.position2.y
+        )
 
-        let distance = Infinity
-        let activeItem = null
-        for(const item of this.items)
+        // Only update is moved enough
+        if(distanceTraveled > 0.2)
         {
-            const itemDistance = Math.hypot(item.position.x - this.game.player.position2.x, item.position.y - this.game.player.position2.y)
-            const isIn = itemDistance < 2.5
-            
-            if(isIn)
+            this.playerPosition.value.copy(this.game.player.position2)
+
+            let distance = Infinity
+            let activeItem = null
+            for(const item of this.items)
             {
-                if(itemDistance < distance && item.state !== InteractivePoints.STATE_HIDDEN)
+                const itemDistance = Math.hypot(item.position.x - this.game.player.position2.x, item.position.y - this.game.player.position2.y)
+                const isIn = itemDistance < 2.5
+                
+                if(isIn)
                 {
-                    activeItem = item
+                    if(itemDistance < distance && item.state !== InteractivePoints.STATE_HIDDEN)
+                    {
+                        activeItem = item
+                    }
+                }
+                else
+                {
+                    if(item.isIn)
+                    {
+                        item.isIn = false
+
+                        if(item.state !== InteractivePoints.STATE_HIDDEN)
+                        {
+                            item.conceal()
+                        }
+                    }
+                }
+            }
+
+            if(activeItem)
+            {
+                // Activate item change => Deactivate old
+                if(activeItem !== this.activeItem && this.activeItem !== null)
+                {
+                    this.activeItem.isIn = false
+                    this.activeItem.conceal()
+                }
+
+                // Activate new active item
+                if(!activeItem.isIn || this.activeItem === null)
+                {
+                    this.activeItem = activeItem
+
+                    activeItem.isIn = true
+                    activeItem.reveal()
                 }
             }
             else
             {
-                if(item.isIn)
-                {
-                    item.isIn = false
-
-                    if(item.state !== InteractivePoints.STATE_HIDDEN)
-                    {
-                        item.conceal()
-                    }
-                }
+                this.activeItem = null
             }
-        }
-
-        if(activeItem)
-        {
-            // Activate item change => Deactivate old
-            if(activeItem !== this.activeItem && this.activeItem !== null)
-            {
-                this.activeItem.isIn = false
-                this.activeItem.conceal()
-            }
-
-            // Activate new active item
-            if(!activeItem.isIn || this.activeItem === null)
-            {
-                this.activeItem = activeItem
-
-                activeItem.isIn = true
-                activeItem.reveal()
-            }
-        }
-        else
-        {
-            this.activeItem = null
         }
     }
 
