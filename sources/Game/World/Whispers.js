@@ -80,7 +80,8 @@ export class Whispers
 
         beamMaterial.outputNode = Fn(() =>
         {
-            const mask = texture(this.game.resources.whisperFlameTexture, uv()).r.sub(revealAttribute.oneMinus())
+            const baseUv = vec2(uv().x, uv().y.oneMinus())
+            const mask = texture(this.game.resources.whisperFlameTexture,baseUv).r.sub(revealAttribute.oneMinus())
             const color = texture(this.game.materials.gradientTexture, vec2(0, mask))
             const alpha = smoothstep(0.05, 0.3, mask)
 

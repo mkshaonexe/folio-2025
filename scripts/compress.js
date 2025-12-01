@@ -81,6 +81,7 @@ import sharp from 'sharp'
     const presets = [
         [ /test.png$/,                            '--nowarn --2d --t2 --encode etc1s --qlevel 255 --assign_oetf linear --target_type R --swizzle r001' ],
 
+        [ /whispers\/whisperFlame.png$/,          '--nowarn --2d --t2 --encode uastc --qlevel 255 --assign_oetf linear --target_type R --swizzle r001' ],
         [ /achievements\/glyphs.png$/,            '--nowarn --2d --t2 --encode etc1s --qlevel 255 --assign_oetf linear --target_type R --swizzle r001' ],
         [ /areas\/satanStar.png$/,                '--nowarn --2d --t2 --encode etc1s --qlevel 255 --assign_oetf linear --target_type R --swizzle r001' ],
         [ /floor\/slabs.png$/,                    '--nowarn --2d --t2 --encode etc1s --qlevel 255 --assign_oetf linear --target_type R --swizzle r001' ],
