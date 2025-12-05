@@ -1,5 +1,6 @@
 import { Game } from './Game.js'
 
+let i = 0
 export class Objects
 {
     constructor()
@@ -7,6 +8,7 @@ export class Objects
         this.game = Game.getInstance()
         this.list = new Map()
         this.key = 0
+        this.roundedViewPosition = { x: 0, z: 0 }
 
         this.game.ticker.events.on('tick', () =>
         {
@@ -143,11 +145,14 @@ export class Objects
             if(typeof _model.userData.category !== 'undefined')
                 _physicalDescription.category = _model.userData.category
 
-            // Collision
-            _physicalDescription.onCollision = (force, position) =>
-            {
-                this.game.audio.groups.get('hitDefault').playRandomNext(force, position)
-            }
+            // // Collision (removed, too expensive)
+            // if(_physicalDescription.type === 'dynamic')
+            // {
+            //     _physicalDescription.onCollision = (force, position) =>
+            //     {
+            //         this.game.audio.groups.get('hitDefault').playRandomNext(force, position)
+            //     }
+            // }
 
             _model.name = name.replaceAll(cleanUpRegexp, '')
 
@@ -298,6 +303,18 @@ export class Objects
 
     update()
     {
+        const roundedViewPosition = {
+            x: Math.round(this.game.view.focusPoint.position.x),
+            z: Math.round(this.game.view.focusPoint.position.z)
+        }
+        let objectsNeedDistanceTest = false
+
+        if(roundedViewPosition.x !== this.roundedViewPosition.x || roundedViewPosition.z !== this.roundedViewPosition.z)
+        {
+            objectsNeedDistanceTest = true
+            this.roundedViewPosition.x = roundedViewPosition.x
+            this.roundedViewPosition.z = roundedViewPosition.z
+        }
         this.list.forEach((_object) =>
         {
             const position = _object.physical ? _object.physical.body.translation() : null
@@ -320,12 +337,24 @@ export class Objects
                 _object.visual.object3D.quaternion.copy(_object.physical.body.rotation())
             }
 
-            // Felt in the floor
+
             if(_object.physical)
             {
+                // Felt in the floor => reset
                 if(position.y < this.game.water.depthElevation)
                 {
                     this.resetObject(_object)
+                }
+
+                // Far from view => Reset
+                if(objectsNeedDistanceTest)
+                {
+                    const distanceToView = Math.hypot(this.roundedViewPosition.x - position.x, this.roundedViewPosition.z - position.z)
+                
+                    if(_object.physical.body.isEnabled() && !_object.physical.body.isSleeping() && distanceToView > this.game.view.optimalArea.radius)
+                    {
+                        _object.physical.body.sleep()
+                    }
                 }
             }
         })

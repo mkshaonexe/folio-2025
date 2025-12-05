@@ -1,6 +1,4 @@
 import { Game } from '../Game.js'
-import { PhysicsWireframe } from './PhysicsWireframe.js'
-import { remapClamp } from '../utilities/maths.js'
 import * as THREE from 'three/webgpu'
 
 export class Physics
@@ -9,7 +7,22 @@ export class Physics
     {
         this.game = Game.getInstance()
 
-        this.world = new this.game.RAPIER.World({ x: 0.0, y: -9.81, z: 0.0 })
+        this.world = new this.game.RAPIER.World(
+            { x: 0.0, y: -9.81, z: 0.0 },
+            
+            // {
+            //     contact_erp: 0.2,
+            //     dt: 1.0 / 60.0,
+            //     lengthUnit: 1,
+            //     maxCcdSubsteps: 1,
+            //     minIslandSize: 128,
+            //     normalizedAllowedLinearError: 0.001,
+            //     normalizedPredictionDistance: 0.002,
+            //     numAdditionalFrictionIterations: 1,
+            //     numInternalPgsIterations: 1,
+            //     numSolverIterations: 2
+            // }
+        )
         this.eventQueue = new this.game.RAPIER.EventQueue(true)
 
         this.physicals = []
