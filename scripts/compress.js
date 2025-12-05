@@ -17,7 +17,7 @@ import sharp from 'sharp'
             {
                 ignored: (p) =>
                 {
-                    return /-(draco|ktx).glb$/.test(p.name)
+                    return /-(draco|ktx|compressed).glb$/.test(p.name)
                 }
             }
         }
