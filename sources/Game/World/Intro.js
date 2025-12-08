@@ -44,8 +44,6 @@ export class Intro
             this.label.rotation.x = -0.4
         }
         
-        
-        
         this.label.scale.setScalar(0.01)
         this.game.scene.add(this.label)
     }

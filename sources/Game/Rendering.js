@@ -73,6 +73,7 @@ export class Rendering
         const scenePassColor = scenePass.getTextureNode('output')
 
         this.bloomPass = bloom(scenePassColor)
+        this.bloomPass._nMips = this.game.quality.level === 0 ? 5 : 2
         this.bloomPass.threshold.value = 1
         this.bloomPass.strength.value = 0.25
         this.bloomPass.smoothWidth.value = 1
