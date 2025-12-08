@@ -1538,13 +1538,8 @@ export class CircuitArea extends Area
                 this.game.inputs.filters.add('wandering')
                 
                 // Update physical vehicle
-                if(forced)
-                {
-                    const respawn = this.game.respawns.getByName('circuit')
-                    this.game.physicalVehicle.moveTo(respawn.position, respawn.rotation)
-                }
-                else
-                    this.game.physicalVehicle.moveTo(this.podium.respawn.position, this.podium.respawn.rotation.y)
+                const respawn = this.game.respawns.getByName('circuit')
+                this.game.physicalVehicle.moveTo(respawn.position, respawn.rotation)
 
                 // Activate terrain physics
                 if(this.game.world.floor)

@@ -61,7 +61,7 @@ export class InputFlag
 
                 if(localeSplit.length)
                 {
-                    countryCode = localeSplit[localeSplit.length - 1]
+                    countryCode = localeSplit[localeSplit.length - 1].toLowerCase()
                 }
             }
         }
