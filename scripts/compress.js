@@ -28,7 +28,7 @@ import sharp from 'sharp'
         const ktx2File = inputFile.replace('.glb', '-compressed.glb')
         const dracoFile = inputFile.replace('.glb', '-compressed.glb')
         
-        const ktx2Command = spawn(
+        const command = spawn(
             'gltf-transform',
             [
                 'etc1s',
@@ -39,9 +39,9 @@ import sharp from 'sharp'
             ]
         )
 
-        ktx2Command.stdout.on('data', data => { console.log(`stdout: ${data}`) })
-        ktx2Command.stderr.on('data', data => { console.error(`stderr: ${data}`) })
-        ktx2Command.on('close', code =>
+        command.stdout.on('data', data => { console.log(`stdout: ${data}`) })
+        command.stderr.on('data', data => { console.error(`stderr: ${data}`) })
+        command.on('close', code =>
         {
             const dracoCommand = spawn(
                 'gltf-transform',
@@ -107,7 +107,7 @@ import sharp from 'sharp'
         else
             preset = defaultPreset
 
-        const ktx2Command = spawn(
+        const command = spawn(
             'toktx',
             [
                 ...preset.split(' '),
@@ -116,9 +116,9 @@ import sharp from 'sharp'
             ]
         )
 
-        ktx2Command.stdout.on('data', data => { console.log(inputFile); console.log(`stdout: ${data}`) })
-        ktx2Command.stderr.on('data', data => { console.log(inputFile); console.error(`stderr: ${data}`) })
-        ktx2Command.on('close', code =>
+        command.stdout.on('data', data => { console.log(inputFile); console.log(`stdout: ${data}`) })
+        command.stderr.on('data', data => { console.log(inputFile); console.error(`stderr: ${data}`) })
+        command.on('close', code =>
         {
             // console.log('finished:', ktx2File);
         })
