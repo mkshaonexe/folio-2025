@@ -693,7 +693,7 @@ export class Audio
         {
             Howler.mute(true)
 
-            if(this.playlist)
+            if(this.playlist?.current)
                 this.playlist.current.sound.pause()
         })
 
@@ -703,7 +703,7 @@ export class Audio
             {
                 Howler.mute(false)
 
-                if(this.playlist)
+                if(this.playlist?.current)
                     this.playlist.current.sound.play()
             }
         })

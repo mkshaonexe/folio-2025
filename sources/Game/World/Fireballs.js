@@ -30,7 +30,7 @@ export class Fireballs
 
     }
 
-    create(coordinates, radius = 5)
+    create(coordinates, fireRadius = 5, explosionRadius = 5)
     {
         // Material
         const material = new THREE.MeshBasicNodeMaterial({ wireframe: false })
@@ -91,12 +91,12 @@ export class Fireballs
 
         // Animate
         const scale = { value: 0 }
-        gsap.fromTo(scale, { value: 0.5 }, { value: radius, duration: 0.6, delay: 0, ease: 'power3.out', onUpdate: () => { mesh.scale.setScalar(scale.value) } })
+        gsap.fromTo(scale, { value: 0.5 }, { value: fireRadius, duration: 0.6, delay: 0, ease: 'power3.out', onUpdate: () => { mesh.scale.setScalar(scale.value) } })
         gsap.fromTo(mesh.rotation, { z: 0 }, { z: - 1 , duration: 2.25, delay: 0, ease: 'linear' })
         gsap.fromTo(progress, { value: 0.15 }, { value: 1, duration: 2, delay: 0.25, ease: 'linear' })
 
         // Trigger explosion
-        this.game.explosions.explode(coordinates, radius, 8)
+        this.game.explosions.explode(coordinates, explosionRadius, 8)
 
         // Dispose
         gsap.delayedCall(2.25, () =>
