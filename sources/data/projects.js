@@ -127,7 +127,7 @@ export default [
     {
         title: 'Orano',
         titleSmall:  'Orano',
-        url: 'https://orano.imm-g-prod.com/experience/innovation',
+        url: 'https://www.orano.group/experience/innovation/en',
         attributes:
         {
             role: [ 'Front developer', 'WebGL developer' ],
