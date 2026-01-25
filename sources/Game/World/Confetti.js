@@ -79,8 +79,12 @@ export class Confetti
             confetti.elevationUniform = uniform(6)
             const rest = confetti.amplitudeUniform.oneMinus()
 
-            material.vertexNode = Fn(() =>
+            material.positionNode = Fn(() =>
             {
+                // Manual instancing so that the positionNode is also applied to the shadow??
+                instance(this.count, instanceMatrix).toStack()
+                
+
                 const basePosition = positionLocal
 
                 // Progress
@@ -105,24 +109,27 @@ export class Confetti
                 const finalPosition = vec3(basePosition.x.add(x), basePosition.y.add(y), basePosition.z.add(z))
 
                 // Projection
-                return cameraProjectionMatrix.mul(cameraViewMatrix).mul(modelWorldMatrix.mul(finalPosition))
+                return finalPosition
             })()
-
 
             confetti.mesh = new THREE.InstancedMesh(this.geometry, material, this.count)
             confetti.mesh.visible = false
-            
+            confetti.mesh.castShadow = true
+
+            const instanceMatrix = new THREE.InstancedBufferAttribute(new Float32Array(this.count * 16), 16)
+            instanceMatrix.setUsage(THREE.StaticDrawUsage)
+    
             for(let i = 0; i < this.count; i++)
             {
                 const matrix = new THREE.Matrix4()
 
-                const position = new THREE.Vector3()
+                const position = new THREE.Vector3(Math.random(), Math.random(), Math.random())
                 const quaternion = new THREE.Quaternion().random()
                 const scale = new THREE.Vector3(1, 1, 1)//.setScalar(0.5 + Math.random() * 0.5)
 
                 matrix.compose(position, quaternion, scale)
 
-                confetti.mesh.setMatrixAt(i, matrix)
+                matrix.toArray(instanceMatrix.array, i * 16)
             }
 
             confetti.mesh.position.y = 3
