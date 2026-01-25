@@ -339,19 +339,15 @@ export class Achievements
         }
 
         // Add progress method
-        group.addProgress = (_progress) =>
+        group.addProgress = (_progress = 1) =>
         {
-            return group.setProgress(group.progress + 1)
+            return group.setProgress(group.progress + _progress)
         }
 
         // Update items of group
         group.updateItems = (_silent) =>
         {
             const groupProgress = group.progress instanceof Set ? group.progress.size : group.progress
-
-            // if(group.hasUnique)
-            // {
-            // }
 
             for(const achievement of group.items)
             {
@@ -616,4 +612,20 @@ export class Achievements
         if(this.game.world.snow)
             this.game.world.snow.achievementAchieved = false
     }
+
+    // achieveAll()
+    // {
+    //     this.groups.forEach((group) =>
+    //     {
+    //         if(group.progress instanceof Set)
+    //         {
+    //             const ids = Array.from({ length: 99 }, (_, i) => i);
+    //             group.setProgress(ids)
+    //         }
+    //         else
+    //         {
+    //             group.setProgress(999999)
+    //         }
+    //     })
+    // }
 }
