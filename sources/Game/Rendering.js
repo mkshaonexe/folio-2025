@@ -5,14 +5,11 @@ import { Game } from './Game.js'
 import { cheapDOF } from './Passes/cheapDOF.js'
 import { Inspector } from 'three/addons/inspector/Inspector.js'
 
-export class Rendering
-{
-    constructor()
-    {
+export class Rendering {
+    constructor() {
         this.game = Game.getInstance()
 
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             this.debugPanel = this.game.debug.panel.addFolder({
                 title: '📸 Rendering',
                 expanded: false,
@@ -20,27 +17,23 @@ export class Rendering
         }
     }
 
-    start()
-    {
+    start() {
         this.setStats()
 
-        this.game.ticker.events.on('tick', () =>
-        {
+        this.game.ticker.events.on('tick', () => {
             this.render()
         }, 998)
 
-        this.game.viewport.events.on('change', () =>
-        {
+        this.game.viewport.events.on('change', () => {
             this.resize()
         })
     }
 
-    async setRenderer()
-    {
+    async setRenderer() {
         this.renderer = new THREE.WebGPURenderer({
             canvas: this.game.canvasElement,
             powerPreference: 'high-performance',
-            forceWebGL: false,
+            forceWebGL: true,
             antialias: this.game.viewport.pixelRatio < 2
         })
         this.renderer.setSize(this.game.viewport.width, this.game.viewport.height)
@@ -50,17 +43,14 @@ export class Rendering
         this.renderer.domElement.classList.add('experience')
         this.renderer.shadowMap.enabled = true
         // this.renderer.shadowMap.type = THREE.PCFSoftShadowMap
-        this.renderer.setOpaqueSort((a, b) =>
-        {
+        this.renderer.setOpaqueSort((a, b) => {
             return a.renderOrder - b.renderOrder
         })
-        this.renderer.setTransparentSort((a, b) =>
-        {
+        this.renderer.setTransparentSort((a, b) => {
             return a.renderOrder - b.renderOrder
         })
 
-        if(location.hash.match(/inspector/i))
-        {
+        if (location.hash.match(/inspector/i)) {
             this.renderer.inspector = new Inspector()
         }
 
@@ -71,8 +61,7 @@ export class Rendering
             .init()
     }
 
-    setPostprocessing()
-    {
+    setPostprocessing() {
         this.postProcessing = new THREE.PostProcessing(this.renderer)
 
         const scenePass = pass(this.game.scene, this.game.view.camera)
@@ -87,14 +76,11 @@ export class Rendering
         this.cheapDOFPass = cheapDOF(renderOutput(scenePass))
 
         // Quality
-        const qualityChange = (level) =>
-        {
-            if(level === 0)
-            {
+        const qualityChange = (level) => {
+            if (level === 0) {
                 this.postProcessing.outputNode = this.cheapDOFPass.add(this.bloomPass)
             }
-            else if(level === 1)
-            {
+            else if (level === 1) {
                 this.postProcessing.outputNode = scenePassColor.add(this.bloomPass)
             }
 
@@ -104,8 +90,7 @@ export class Rendering
         this.game.quality.events.on('change', qualityChange)
 
         // Debug
-        if(this.game.debug.active)
-        {
+        if (this.game.debug.active) {
             const bloomPanel = this.debugPanel.addFolder({
                 title: 'bloom',
                 expanded: false,
@@ -130,15 +115,13 @@ export class Rendering
         }
     }
 
-    setStats()
-    {
-        if(!location.hash.match(/stats/i))
+    setStats() {
+        if (!location.hash.match(/stats/i))
             return
-            
+
         this.stats = {}
         this.stats.feed = {}
-        this.stats.update = () =>
-        {
+        this.stats.update = () => {
             this.stats.feed.drawCalls = this.renderer.info.render.drawCalls.toLocaleString()
             this.stats.feed.triangles = this.renderer.info.render.triangles.toLocaleString()
             this.stats.feed.geometries = this.renderer.info.memory.geometries.toLocaleString()
@@ -148,36 +131,31 @@ export class Rendering
         this.stats.update()
 
         // Debug
-        if(this.game.debug.active)
-        {
-             const debugPanel = this.debugPanel.addFolder({
+        if (this.game.debug.active) {
+            const debugPanel = this.debugPanel.addFolder({
                 title: 'Stats',
                 expanded: true,
             })
 
-            for(const feedName in this.stats.feed)
-            {
+            for (const feedName in this.stats.feed) {
                 debugPanel.addBinding(this.stats.feed, feedName, { readonly: true })
             }
         }
     }
 
-    resize()
-    {
+    resize() {
         this.renderer.setSize(this.game.viewport.width, this.game.viewport.height)
         this.renderer.setPixelRatio(this.game.viewport.pixelRatio)
     }
 
-    async render()
-    {
+    async render() {
         // this.renderer.render(this.game.scene, this.game.view.camera)
         this.postProcessing.render()
 
-        if(this.stats)
+        if (this.stats)
             this.stats.update()
 
-        if(this.game.monitoring?.stats)
-        {
+        if (this.game.monitoring?.stats) {
             this.game.rendering.renderer.resolveTimestampsAsync(THREE.TimestampQuery.RENDER)
             this.game.monitoring.stats.update()
         }

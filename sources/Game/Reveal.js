@@ -97,53 +97,8 @@ export class Reveal
                     this.game.world.cherryTrees.leaves.seeThroughMultiplier = 0.5
 
                 // Click
-                if(location.hash.match(/skip/i))
-                {
-                    this.updateStep(1)
-                }
-                else
-                {
-                    // Next function
-                    const next = () =>
-                    {
-                        this.updateStep(1)
-                        this.game.inputs.events.off('introStart', inputCallback)
-                        this.game.rayCursor.removeIntersect(intersect)
-                    }
-
-                    // Input callback
-                    const inputCallback = () =>
-                    {
-                        next()
-                    }
-
-                    // Intsect
-                    const position = this.position.clone()
-                    position.y = 0
-                    
-                    const intersect = this.game.rayCursor.addIntersect({
-                        active: true,
-                        shape: new THREE.Sphere(position, 3.5),
-                        onClick: next,
-                        onEnter: () =>
-                        {
-                            gsap.to(this, { intensityMultiplier: 1.22, duration: 0.2, overwrite: true })
-                        },
-                        onLeave: () =>
-                        {
-                            gsap.to(this, { intensityMultiplier: 1, duration: 0.2, overwrite: true })
-                        }
-                    })
-                    
-                    // Inputs (for gamepad and keyboard)
-                    this.game.inputs.addActions([
-                        { name: 'introStart', categories: [ 'intro' ], keys: [ 'Gamepad.cross', 'Keyboard.Enter', 'Keyboard.ArrowUp', 'Keyboard.ArrowDown', 'Keyboard.KeyW', 'Keyboard.KeyD' ] },
-                    ])
-
-            // { name: 'forward',               categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.ArrowUp', 'Keyboard.KeyW', 'Gamepad.up', 'Gamepad.r2' ] },
-            // { name: 'right',                 categories: [ 'wandering', 'racing', 'cinematic' ], keys: [ 'Keyboard.ArrowRight', 'Keyboard.KeyD', 'Gamepad.right' ] },
-                    this.game.inputs.events.on('introStart', inputCallback)
-                }
+                // Auto start (skip click to start)
+                this.updateStep(1)
             })
         }
         else if(step === 1)
