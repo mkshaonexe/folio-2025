@@ -9,6 +9,8 @@ const text = `
 ╔═ Socials ═══════════════╗
 ║ X              ⇒ https://x.com/mkshaon7
 ║ GitHub         ⇒ https://github.com/mkshaonexe
+║ Youtube        ⇒ https://www.youtube.com/@mkshaon7
+║ Facebook       ⇒ https://www.facebook.com/mkshaon777
 ╚═══════════════════════╝
 
 ╔═ Debug ═══════════════╗
